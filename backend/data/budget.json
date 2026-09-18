@@ -1,0 +1,113 @@
+{
+  "vehicle": [
+    {
+      "id": "mildMT",
+      "label": "1.5 mild hybrid MT — ARAI 21.18",
+      "kmpl": 17.5
+    },
+    {
+      "id": "mildAT",
+      "label": "1.5 mild hybrid AT — ARAI 21.06",
+      "kmpl": 17.0
+    },
+    {
+      "id": "strong",
+      "label": "1.5 strong hybrid e-CVT — ARAI 28.65",
+      "kmpl": 21.0
+    },
+    {
+      "id": "cng",
+      "label": "1.5 CNG bi-fuel — ARAI 27.02 km/kg",
+      "kmpl": 23.0
+    }
+  ],
+  "prices": {
+    "petrolDelhi": 102.12,
+    "petrolRajasthan": 113.35,
+    "blended": 111,
+    "defaults": {
+      "pax": 3,
+      "nights": 8,
+      "hotelPerNight": 4200,
+      "foodPerPersonDay": 1200,
+      "tolls": 2000,
+      "entriesPerPerson": 2800,
+      "campPerPerson": 3000,
+      "misc": 4500
+    }
+  },
+  "legs": [
+    [
+      "1",
+      "Delhi → Jaipur → Ajmer",
+      415,
+      "7h15",
+      "11h30",
+      "NH-48 throughout"
+    ],
+    [
+      "2",
+      "Ajmer → Pushkar → Chittorgarh",
+      210,
+      "4h15",
+      "8h00",
+      "Nag Pahar, NH-58, NH-48"
+    ],
+    [
+      "3",
+      "Chittorgarh local + Menal",
+      110,
+      "2h30",
+      "—",
+      "Fort circuit + SH-9"
+    ],
+    [
+      "4",
+      "Chittorgarh → Udaipur",
+      165,
+      "4h15",
+      "—",
+      "NH-48 + Udaipur local"
+    ],
+    [
+      "5",
+      "Udaipur → Mount Abu",
+      195,
+      "4h40",
+      "5h15",
+      "NH-27, NH-58, Abu ghat"
+    ],
+    [
+      "6",
+      "Mount Abu → Barmer → Jaisalmer",
+      480,
+      "8h15",
+      "9h30",
+      "SH-16, NH-68, NH-11"
+    ],
+    [
+      "7",
+      "Jaisalmer local + Kuldhara + Sam",
+      150,
+      "3h20",
+      "—",
+      "Sam road, Kuldhara road"
+    ],
+    [
+      "8",
+      "Jaisalmer → Bikaner",
+      355,
+      "6h00",
+      "6h45",
+      "NH-11 via Pokhran, Phalodi"
+    ],
+    [
+      "R",
+      "Bikaner → Delhi",
+      460,
+      "8h00",
+      "9h00",
+      "NH-11, NH-52, NH-48"
+    ]
+  ]
+}

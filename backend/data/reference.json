@@ -1,0 +1,428 @@
+{
+  "food": [
+    [
+      "1",
+      "Jaipur (lunch)",
+      "Laal Maas Restaurant, Bani Park",
+      "Authentic laal maas — call ahead, ask for it without turmeric",
+      false
+    ],
+    [
+      "1",
+      "Ajmer (dinner)",
+      "The Khadim's · Mughlai Kitchens · Mango Curry",
+      "<b>Sali boti</b>, Khadim's special tandoori, mandi rice, chicken malai tikka",
+      false
+    ],
+    [
+      "2",
+      "Pushkar",
+      "NONE — strictly vegetarian town",
+      "No meat, eggs or alcohol anywhere. Eat in Ajmer before, Bhilwara after.",
+      true
+    ],
+    [
+      "2",
+      "Bhilwara (lunch)",
+      "Highway restaurants on the bypass",
+      "Chicken curry, tandoori, tawa roti",
+      false
+    ],
+    [
+      "2–3",
+      "Chittorgarh",
+      "Rajasthan Restaurant, Fort Rd · hotel kitchen on request",
+      "Laal maas, tandoori chicken. Thin scene — arrange at check-in.",
+      false
+    ],
+    [
+      "3",
+      "Chittorgarh Fort",
+      "Shri Barbarik — vegetarian",
+      "In-fort dining is effectively all veg. Eat light at lunch.",
+      true
+    ],
+    [
+      "4",
+      "Udaipur",
+      "<b>Viraasat — The Haveli</b> (lunch) · <b>1559 AD</b> (dinner) · Pick & Move",
+      "<b>Desi laal maas</b>, <b>maas bhujma</b>, <b>dungar maas</b> (smoked), desi chicken masala",
+      false
+    ],
+    [
+      "5",
+      "Mount Abu",
+      "<b>Zaika</b> (11–15, 19–22:15) · Sindh A Punjab (11–23:30)",
+      "<b>Chicken Toofani</b>, Chicken Hara Masala, amritsari tikka, matka biryani",
+      false
+    ],
+    [
+      "6",
+      "Barmer (lunch)",
+      "<b>Zayka</b> at Hotel Kailash Intl, NH-68 · Kargil Chicken Corner",
+      "Tandoori platter, chicken curry, biryani",
+      false
+    ],
+    [
+      "6–7",
+      "Jaisalmer",
+      "<b>The Namaste</b> · <b>Manwaar (Kake Da Dhaba)</b> · 1156AD · Lake View",
+      "<b>Laal maas at Namaste</b>, handi mutton and bhuna chicken at Manwaar, seekh kababs at 1156AD",
+      false
+    ],
+    [
+      "7",
+      "Sam desert camp",
+      "Camp dinners usually vegetarian",
+      "Take your meat at lunch that day",
+      true
+    ],
+    [
+      "8",
+      "Bikaner",
+      "<b>Sigdi</b> · Chacha Chicken Corner · KK Chicken Corner",
+      "<b>Akbari Chicken</b>, smoky Irani tikka, Turkish tikka, nalli nihari",
+      false
+    ]
+  ],
+  "stays": [
+    [
+      "1",
+      "Ajmer",
+      "Ana Sagar / Jaipur Road hotels",
+      "Insist on off-street parking. Avoid Dargah Bazar lanes."
+    ],
+    [
+      "2, 3",
+      "Chittorgarh",
+      "Hotel Pride of Chittor · Hotel Paras · Castle Bijaipur",
+      "Pride of Chittor has spacious rooms and fort views; good for an extra bed."
+    ],
+    [
+      "4",
+      "Udaipur",
+      "Lal Ghat / Hanuman Ghat area",
+      "<b>Confirm parking in writing before booking.</b> A haveli suite is often cheaper than two rooms."
+    ],
+    [
+      "5",
+      "Mount Abu",
+      "Radisson Resort · Rock Regency · Hummingbird",
+      "Radisson handles three most easily and has parking."
+    ],
+    [
+      "6, 7",
+      "Jaisalmer",
+      "Mandir Palace · Rang Mahal · Killa Bhawan",
+      "Killa Bhawan is tiny — confirm a triple. Rang Mahal is easiest for parking."
+    ],
+    [
+      "8",
+      "Bikaner",
+      "<b>Laxmi Niwas Palace</b> · Maharaja Ganga Mahal",
+      "Laxmi Niwas rooms are enormous; an extra bed disappears in them."
+    ]
+  ],
+  "fuelStops": [
+    [
+      "F0",
+      "Delhi, pre-departure",
+      0,
+      "Cheapest fuel of the trip — brim it",
+      true
+    ],
+    [
+      "F1",
+      "Behror, NH-48",
+      165,
+      "Breakfast stop; top up",
+      false
+    ],
+    [
+      "F2",
+      "Kishangarh",
+      375,
+      "Before the Ajmer stretch",
+      false
+    ],
+    [
+      "F3",
+      "Bhilwara",
+      530,
+      "Last big town before Chittorgarh",
+      false
+    ],
+    [
+      "F4",
+      "Udaipur town",
+      860,
+      "Fill in town, not on the Pindwara road",
+      false
+    ],
+    [
+      "F5",
+      "Abu Road — BRIM",
+      1000,
+      "No fuel on the ghat; thin supply beyond",
+      true
+    ],
+    [
+      "F6",
+      "Barmer — BRIM",
+      1250,
+      "155 km of empty desert follows",
+      true
+    ],
+    [
+      "F7",
+      "Jaisalmer, before Day 8",
+      1600,
+      "Sam has no reliable pump",
+      false
+    ],
+    [
+      "F8",
+      "Pokhran or Phalodi",
+      1730,
+      "Mid-leg insurance",
+      false
+    ],
+    [
+      "F9",
+      "Sikar — minimum fill",
+      2390,
+      "Just enough to reach Delhi; fill at home",
+      false
+    ]
+  ],
+  "variants": [
+    {
+      "name": "A1 — Udaipur as a day trip",
+      "km": 2750,
+      "how": "Third night in Chittorgarh. Day 4 runs Chittorgarh → Udaipur (07:00, arrive 09:15) → City Palace, Pichola, lunch at Viraasat → depart 16:30 → back in Chittorgarh 18:45. Day 5 becomes Chittorgarh → Mount Abu, 285 km via Nathdwara.",
+      "tradeoff": "+240 km on Day 4 and a 285 km Day 5. Saves a night's accommodation, gains a third Chittorgarh evening."
+    },
+    {
+      "name": "A2 — Udaipur as a pass-through ★ recommended fallback",
+      "km": 2545,
+      "how": "Day 4 runs Chittorgarh 07:00 → Udaipur 09:15 → City Palace + lunch + Pichola until 15:00 → Mount Abu by 19:00. The freed night goes to Jaisalmer as a third night, or to Barmer to split the long haul.",
+      "tradeoff": "No Sajjangarh sunset, no Udaipur evening. But it converts a costly night into an extra Jaisalmer day — which fits your priorities better than anything else here."
+    },
+    {
+      "name": "B — Split the long haul",
+      "km": 2590,
+      "how": "Add a Barmer night. Day 6 becomes Mount Abu → Barmer (260 km, arrive mid-afternoon — ajrak block-printing workshops and the Kiradu temple ruins 35 km out, an 11th-century complex almost nobody visits). Day 7 becomes Barmer → Jaisalmer (155 km) arriving 11:00.",
+      "tradeoff": "Costs one extra day overall. Removes the hardest driving day entirely."
+    },
+    {
+      "name": "C — Jodhpur instead of Mount Abu",
+      "km": 2520,
+      "how": "Udaipur → Ranakpur (1,444 carved marble pillars, no two alike) → Jodhpur (Mehrangarh, the best-preserved fort in Rajasthan, and the blue city) → Jaisalmer. Legs become 165, 165 and 285 km.",
+      "tradeoff": "No 480 km day anywhere, and the non-veg situation improves a lot — Jodhpur is a serious meat-eating city. You lose Dilwara and the hill-station night. On sightseeing density and road quality this is objectively the better circuit; it's only wrong if Mount Abu specifically matters to you."
+    }
+  ],
+  "notes": [
+    {
+      "h": "Road and traffic",
+      "items": [
+        "<b>No night driving outside cities.</b> Unlit tractor trolleys, camel carts, livestock and trucks with dead tail lights are all normal. Every arrival in this plan is timed before sunset for that reason.",
+        "Rural speed discipline: 60–70 km/h on two-lane roads, not 90. Free-roaming cattle everywhere; blackbuck and chinkara in the west.",
+        "Riskiest overtaking is on the <b>Pushkar–Bhilwara</b> and <b>Sanchore–Barmer</b> stretches. Wait for real visibility.",
+        "Ghats: Nag Pahar, the Abu ghat, Sajjangarh's approach. Engine-brake down; don't ride the friction brakes.",
+        "FASTag with a healthy balance. Most of the toll is on the two Delhi legs."
+      ]
+    },
+    {
+      "h": "Parking, city by city",
+      "items": [
+        "<b>Jaipur:</b> Jaleb Chowk or Ramniwas Bagh. You're only there two hours.",
+        "<b>Ajmer:</b> Ana Sagar side. Don't take the car toward the Dargah.",
+        "<b>Pushkar:</b> main lot at the town edge; everything is walk-only.",
+        "<b>Chittorgarh:</b> the happy exception — drive the entire internal fort circuit.",
+        "<b>Udaipur:</b> the weakest point of the trip. Gangaur Ghat paid lot, ~₹30/hr.",
+        "<b>Jaisalmer:</b> Gopa Chowk below the fort. Never drive into the fort lanes.",
+        "<b>Sam Dunes:</b> park on the road; the sand is for the jeeps."
+      ]
+    },
+    {
+      "h": "Car prep, with three aboard",
+      "items": [
+        "Tyre pressures cold including the spare, <b>+2–3 psi rear</b> for the extra passenger and luggage.",
+        "Coolant, oil, washer reservoir topped — refill washer fluid twice on the trip. Desert dust on the windscreen at sunset is genuinely dangerous.",
+        "Roadside assistance number saved offline. Signal is patchy between Sanchore and Barmer.",
+        "The Victoris's 210 mm ground clearance is ample for everything here, including the Dhorimanna section and the Sam approach road.",
+        "Boot space is 439 L. Three people's luggage fits — pack soft bags, not hard cases, and keep the rear view clear."
+      ]
+    },
+    {
+      "h": "Season",
+      "items": [
+        "<b>October–March</b> is the window. Days 22–28°C; desert nights near freezing in Dec–Jan.",
+        "<b>April–June</b> makes Day 6 punishing — western Rajasthan passes 45°C and AC load costs 2–3 kmpl.",
+        "<b>July–September</b> is green in the south and Menal Falls actually flows, but the Abu ghat gets slow in heavy rain.",
+        "Avoid <b>Pushkar Camel Fair</b> week (usually November) unless you're going for it — Ajmer and Pushkar rates triple."
+      ]
+    }
+  ],
+  "sources": [
+    "<b>Vehicle</b> — Maruti Suzuki Victoris specs via CarWale, CarDekho, ZigWheels, 91Wheels: 45 L tank; ARAI 21.18 kmpl (petrol MT), 21.06 (petrol AT), 28.65 (strong hybrid), 27.02 km/kg (CNG). CarWale real-world testing returned 20.24 kmpl highway on the hybrid.",
+    "<b>Fuel prices</b> — New Delhi ₹102.12/L and Jaipur ₹113.35/L, published 12–14 Sep 2026. Rajasthan carries the highest state VAT on petrol in India.",
+    "<b>Distances</b> — Google Maps road figures per leg. The Mount Abu–Jaisalmer leg was cross-checked against independent traveller accounts reporting 430–500 km and 8–9 h via Sanchore and Barmer, with ~40 km of poor surface.",
+    "<b>Restaurants, hotels, opening hours</b> — Google Places data retrieved September 2026, filtered for non-vegetarian kitchens.",
+    "<b>Photographs</b> — fetched live from Wikipedia / Wikimedia Commons via the Wikipedia REST API. Each image links back to its source article."
+  ],
+  "photoUrls": {
+    "hawa-mahal": "",
+    "ana-sagar-lake": "",
+    "adhai-din-ka-jhonpra": "",
+    "pushkar-lake": "",
+    "brahma-temple": "",
+    "chittorgarh-fort": "",
+    "vijay-stambh": "",
+    "kirti-stambh": "",
+    "rana-kumbha-palace": "",
+    "lake-pichola": "",
+    "udaipur-city-palace": "",
+    "monsoon-palace": "",
+    "jagdish-temple": "",
+    "dilwara-temples": "",
+    "nakki-lake": "",
+    "mount-abu": "",
+    "guru-shikhar": "",
+    "jaisalmer-fort": "",
+    "barmer": "",
+    "thar-desert": "",
+    "patwon-ki-haveli": "",
+    "gadisar-lake": "",
+    "kuldhara": "",
+    "bada-bagh": "",
+    "junagarh-fort": "",
+    "karni-mata-temple": "",
+    "pokhran-fort": "",
+    "bikaner": "",
+    "mandawa": "",
+    "shekhawati": ""
+  },
+  "photoWiki": {
+    "hawa-mahal": [
+      "Hawa Mahal",
+      "Hawa Mahal, Jaipur"
+    ],
+    "ana-sagar-lake": [
+      "Ana Sagar Lake",
+      "Ana Sagar Lake, Ajmer"
+    ],
+    "adhai-din-ka-jhonpra": [
+      "Adhai Din Ka Jhonpra",
+      "Adhai Din ka Jhonpra"
+    ],
+    "pushkar-lake": [
+      "Pushkar Lake",
+      "Pushkar Lake"
+    ],
+    "brahma-temple": [
+      "Brahma Temple, Pushkar",
+      "Brahma Temple, Pushkar"
+    ],
+    "chittorgarh-fort": [
+      "Chittorgarh Fort",
+      "Chittorgarh Fort"
+    ],
+    "vijay-stambh": [
+      "Vijay Stambha",
+      "Vijay Stambh"
+    ],
+    "kirti-stambh": [
+      "Kirti Stambha",
+      "Kirti Stambh"
+    ],
+    "rana-kumbha-palace": [
+      "Rana Kumbha Palace",
+      "Rana Kumbha Palace"
+    ],
+    "lake-pichola": [
+      "Lake Pichola",
+      "Lake Pichola"
+    ],
+    "udaipur-city-palace": [
+      "City Palace, Udaipur",
+      "City Palace, Udaipur"
+    ],
+    "monsoon-palace": [
+      "Monsoon Palace",
+      "Sajjangarh Monsoon Palace"
+    ],
+    "jagdish-temple": [
+      "Jagdish Temple, Udaipur",
+      "Jagdish Temple"
+    ],
+    "dilwara-temples": [
+      "Dilwara Temples",
+      "Dilwara Temples"
+    ],
+    "nakki-lake": [
+      "Nakki Lake",
+      "Nakki Lake"
+    ],
+    "mount-abu": [
+      "Mount Abu",
+      "Mount Abu"
+    ],
+    "guru-shikhar": [
+      "Guru Shikhar",
+      "Guru Shikhar"
+    ],
+    "jaisalmer-fort": [
+      "Jaisalmer Fort",
+      "Jaisalmer Fort"
+    ],
+    "barmer": [
+      "Barmer",
+      "Barmer"
+    ],
+    "thar-desert": [
+      "Thar Desert",
+      "Thar Desert"
+    ],
+    "patwon-ki-haveli": [
+      "Patwon Ki Haveli",
+      "Patwon ki Haveli"
+    ],
+    "gadisar-lake": [
+      "Gadisar Lake",
+      "Gadisar Lake"
+    ],
+    "kuldhara": [
+      "Kuldhara",
+      "Kuldhara"
+    ],
+    "bada-bagh": [
+      "Bada Bagh",
+      "Bada Bagh"
+    ],
+    "junagarh-fort": [
+      "Junagarh Fort",
+      "Junagarh Fort"
+    ],
+    "karni-mata-temple": [
+      "Karni Mata Temple",
+      "Karni Mata Temple, Deshnoke"
+    ],
+    "pokhran-fort": [
+      "Pokhran Fort",
+      "Pokhran Fort"
+    ],
+    "bikaner": [
+      "Bikaner",
+      "Bikaner"
+    ],
+    "mandawa": [
+      "Mandawa",
+      "Mandawa"
+    ],
+    "shekhawati": [
+      "Shekhawati",
+      "Shekhawati"
+    ]
+  }
+}

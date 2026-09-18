@@ -1,0 +1,972 @@
+[
+  {
+    "n": "Day 1",
+    "title": "Delhi → Jaipur (lunch) → Ajmer",
+    "alerts": [
+      {
+        "type": "warn",
+        "html": "<b>Clear Gurugram before 06:30.</b> It is the single most useful thing you do all day — after 08:00 the Kherki Daula approach costs you 40 minutes you never get back."
+      },
+      {
+        "type": "meat",
+        "html": "<b>Ajmer is the best non-veg town on the eastern half of this route.</b> <b>The Khadim's</b> (Phool Gali, opposite the Dargah) for <i>sali boti</i> — mutton in a sweet-sharp gravy under a haystack of fried potato straws — plus the Khadim's special tandoori and mandi rice; open till 03:00. <b>Mughlai Kitchens</b> (Makarwali Rd, halal, opens 14:00) for chicken malai tikka and biryani. <b>Mango Curry</b> (Kutchery Rd) has separate veg/non-veg wings and the easiest parking of the three. <b>Order tonight: sali boti and a tandoori platter.</b>"
+      }
+    ],
+    "tl": [
+      {
+        "time": "05:15",
+        "what": "Brim tank (F0), tyre check",
+        "status": "planned",
+        "desc": "Cold pressures including the spare. Three people plus bags — add 2–3 psi rear."
+      },
+      {
+        "time": "05:30",
+        "what": "Depart Delhi",
+        "status": "planned",
+        "key": true,
+        "desc": "NH-48 / Delhi–Mumbai Expressway south."
+      },
+      {
+        "time": "08:00",
+        "what": "Breakfast — Behror",
+        "status": "planned",
+        "desc": "Hotel Highway King. 24 h, huge lot, the NH-48 institution. Parathas with white butter, chaas, omelettes. Fuel top-up (F1)."
+      },
+      {
+        "time": "10:45",
+        "what": "Arrive Jaipur (280 km)",
+        "status": "planned",
+        "desc": "Park at Jaleb Chowk or the City Palace lot. Two hours here, not two days."
+      },
+      {
+        "time": "10:50",
+        "what": "Jaipur — 70 minutes, no more",
+        "status": "planned",
+        "key": true,
+        "desc": "Hawa Mahal from the street (photograph it, don't queue inside) → walk Johari Bazaar → Jantar Mantar ONLY if you're ahead of schedule; it's 45 min and the Samrat Yantra sundial is the one thing worth it. Skip the City Palace entirely — it needs two hours you don't have. Be back at the car by 12:00."
+      },
+      {
+        "time": "12:05",
+        "what": "LUNCH — Laal Maas Restaurant, Bani Park",
+        "status": "planned",
+        "key": true,
+        "desc": "Call ahead, both to book and to ask for the authentic laal maas made without turmeric — that's how it should be, and pre-ordering saves you 20 minutes. Easy parking, quick service. Backup: Rustic — Inspired Kitchen, C Scheme."
+      },
+      {
+        "time": "13:20",
+        "what": "Depart for Ajmer (135 km)",
+        "status": "planned",
+        "desc": "NH-48 south, four-lane and fast. Leaving 40 min earlier than a normal itinerary — this is the first of the buffers that get you home early on Sunday."
+      },
+      {
+        "time": "14:35",
+        "what": "Rest stop — Kishangarh",
+        "status": "planned",
+        "desc": "Fuel (F2), tea. Fifteen minutes, not thirty."
+      },
+      {
+        "time": "15:45",
+        "what": "Arrive Ajmer, check in",
+        "status": "planned",
+        "desc": "Park at the hotel — you walk from here."
+      },
+      {
+        "time": "16:15",
+        "what": "Ajmer at golden hour",
+        "status": "planned",
+        "key": true,
+        "desc": "Ana Sagar Lake and Shah Jahan's white marble Baradari pavilions, then Adhai Din ka Jhonpra — a 12th-century mosque raised over a Sanskrit college, with seven arches and pillars carved for an entirely different religion. Extraordinary, and almost always empty."
+      },
+      {
+        "time": "20:00",
+        "what": "DINNER — see the meat brief above",
+        "status": "planned"
+      }
+    ],
+    "logistics": [
+      [
+        "Fuel",
+        "F0 Delhi (brim) · F1 Behror · F2 Kishangarh"
+      ],
+      [
+        "Rest stops",
+        "Behror 165 · Shahpura 220 · Kishangarh 375"
+      ],
+      [
+        "Stay",
+        "Ajmer hotels cluster around Ana Sagar and the Jaipur Road. Insist on off-street parking; avoid the Dargah Bazar lanes — you will not get the car near them."
+      ],
+      [
+        "Parking",
+        "Jaipur: Jaleb Chowk / Ramniwas Bagh. Ajmer: Ana Sagar side only."
+      ]
+    ],
+    "wd": "SAT",
+    "km": 415,
+    "load": "Heavy",
+    "stat": "415 km · 7h15 driving · NH-48 · Night: Ajmer · arrive 15:45",
+    "map": "https://www.google.com/maps/dir/Delhi/Behror/Jaipur/Kishangarh/Ajmer",
+    "photos": [
+      "hawa-mahal",
+      "ana-sagar-lake",
+      "adhai-din-ka-jhonpra"
+    ]
+  },
+  {
+    "n": "Day 2",
+    "title": "Ajmer → Pushkar → Chittorgarh",
+    "alerts": [
+      {
+        "type": "warn",
+        "html": "<b>Pushkar is a strictly vegetarian town.</b> It is one of Hinduism's most sacred sites and the municipality prohibits meat, eggs and alcohol within town limits — there is no non-veg restaurant in Pushkar, and this is not a matter of finding the right place. That is exactly why your Day 1 night is in Ajmer. Eat before you come and after you leave."
+      },
+      {
+        "type": "meat",
+        "html": "Chittorgarh's non-veg scene is thin — it's a temple town and the fort itself is effectively vegetarian. Best bets: <b>laal maas or a tandoori platter on Fort Road</b>, or ask your hotel kitchen to do a non-veg thali — most Gandhi Nagar hotels will with a few hours' notice. <b>Arrange it at check-in.</b>"
+      }
+    ],
+    "tl": [
+      {
+        "time": "07:00",
+        "what": "Breakfast in Ajmer, check out",
+        "status": "planned",
+        "desc": "Eat here. Pushkar's cafes are good but you want time on the ground, not at a table."
+      },
+      {
+        "time": "07:45",
+        "what": "Ajmer → Pushkar (15 km)",
+        "status": "planned",
+        "desc": "Over the Nag Pahar ghat — short, scenic, a few blind hairpins. Park at the main lot; the centre is walk-only."
+      },
+      {
+        "time": "08:30",
+        "what": "Pushkar",
+        "status": "planned",
+        "key": true,
+        "desc": "Pushkar Lake and its 52 ghats at morning aarti — the reason to be here early → Brahma Temple, one of very few Brahma temples anywhere in the world → Savitri Mata Temple by ropeway, 10 min up, for the whole valley → Sadar Bazaar for leather juttis and silver."
+      },
+      {
+        "time": "11:15",
+        "what": "Coffee before you go",
+        "status": "planned",
+        "desc": "Sol House Cafe by Rawai, Brahma Temple Road. Good espresso, clean, sunset terrace. Vegetarian, like everything here."
+      },
+      {
+        "time": "12:00",
+        "what": "Depart for Chittorgarh (195 km)",
+        "status": "planned",
+        "desc": "Via Nasirabad → Bhilwara. Mixed two- and four-lane."
+      },
+      {
+        "time": "13:45",
+        "what": "LUNCH — Bhilwara",
+        "status": "planned",
+        "key": true,
+        "desc": "Back in non-veg territory. The bypass has several clean highway restaurants doing chicken curry and tandoori. Fuel (F3) — last substantial town."
+      },
+      {
+        "time": "16:15",
+        "what": "Arrive Chittorgarh, check in",
+        "status": "planned",
+        "desc": "Gandhi Nagar — modern side of town, easy parking, 5 km from the fort ramp."
+      },
+      {
+        "time": "17:00",
+        "what": "Orientation drive up the fort",
+        "status": "planned",
+        "key": true,
+        "desc": "Go up now in evening light and just drive the circuit road without stopping at monuments. You get the scale of the place — 280 hectares on a 180 m plateau — and tomorrow you'll know exactly where everything is. Come down before dark."
+      },
+      {
+        "time": "20:00",
+        "what": "DINNER",
+        "status": "planned",
+        "desc": "Rajasthan Restaurant on Fort Road does chicken and laal maas with parking opposite — check the bill, it has a reputation for adding items. Dine & View Rooftop at Hotel Hari Leela puts the floodlit fort wall across your table."
+      }
+    ],
+    "logistics": [
+      [
+        "Fuel",
+        "F3 Bhilwara"
+      ],
+      [
+        "Rest stops",
+        "Nasirabad 40 · Bhilwara 130"
+      ],
+      [
+        "Stay",
+        "Hotel Pride of Chittor (spacious, several fort-view rooms) · Hotel Paras · Castle Bijaipur, a real 16th-c castle 40 km east with a pool and stables"
+      ],
+      [
+        "Parking",
+        "Pushkar: main lot at the town edge, walk from there. Chittorgarh: you can drive the entire internal fort circuit — the happy exception on this trip."
+      ]
+    ],
+    "wd": "SUN",
+    "km": 210,
+    "load": "Moderate",
+    "stat": "210 km · 4h15 driving · Nag Pahar, NH-58, NH-48 · Night: Chittorgarh (1 of 2)",
+    "map": "https://www.google.com/maps/dir/Ajmer/Pushkar/Bhilwara/Chittorgarh",
+    "photos": [
+      "pushkar-lake",
+      "brahma-temple",
+      "chittorgarh-fort"
+    ]
+  },
+  {
+    "n": "Day 3",
+    "title": "Chittorgarh — the full day",
+    "alerts": [
+      {
+        "type": "tip",
+        "html": "<b>Why the second night here is worth it.</b> Chittorgarh's story — three sieges, three mass jauhars, abandoned in 1568 and never reoccupied — only lands if you have time to walk it. A half day gets you the Vijay Stambh and a photograph. A full day gets you the place. It's also the one major Rajput fort you can <b>drive around inside</b>."
+      }
+    ],
+    "tl": [
+      {
+        "time": "07:30",
+        "what": "Breakfast",
+        "status": "planned",
+        "desc": "Early. The fort is empty and cool before 09:00 and the light on the sandstone is best then."
+      },
+      {
+        "time": "08:15",
+        "what": "Up the ramp — seven gates",
+        "status": "planned",
+        "key": true,
+        "desc": "Padal Pol, Bhairon Pol, Hanuman Pol, Ganesh Pol, Jodla Pol, Laxman Pol, Ram Pol. Hire a licensed guide at Ram Pol — here it genuinely changes the day."
+      },
+      {
+        "time": "08:30",
+        "what": "Block 1 — the palaces",
+        "status": "planned",
+        "desc": "Rana Kumbha Palace, the oldest structure, with the underground cellars where Rani Padmini's jauhar is said to have taken place → Nau Lakha Bhandar treasury → Singa Chowri Temple."
+      },
+      {
+        "time": "10:15",
+        "what": "Block 2 — the towers",
+        "status": "planned",
+        "key": true,
+        "desc": "Vijay Stambh, the nine-storey Tower of Victory, 1448 — you can climb the internal stair to the top. Then Samidheshwar Temple and the Mahasati cremation terrace beside it."
+      },
+      {
+        "time": "11:30",
+        "what": "Block 3 — water and Meera",
+        "status": "planned",
+        "desc": "Gaumukh Kund, the spring-fed reservoir that let the fort withstand sieges → Meera Temple and Kumbha Shyam Temple, connected to the poet-saint Meerabai."
+      },
+      {
+        "time": "12:30",
+        "what": "LUNCH inside the fort",
+        "status": "planned",
+        "desc": "Shri Barbarik Restaurant near Ratan Singh Palace — clean, home-style, cooked to order. Vegetarian, like almost everything inside the fort. Eat light; the meat comes tonight."
+      },
+      {
+        "time": "13:45",
+        "what": "Block 4 — the south end",
+        "status": "planned",
+        "desc": "Padmini Palace and its water pavilion → Kalika Mata Temple → Kirti Stambh, the older and slimmer 12th-century Jain Tower of Fame → Ratan Singh Palace and its lake."
+      },
+      {
+        "time": "15:30",
+        "what": "Menal Falls (optional, 90 km round)",
+        "status": "planned",
+        "key": true,
+        "desc": "45 km east on SH-9. A gorge with an 11th-century Shiva temple complex beside a seasonal waterfall — spectacular after monsoon, a dry cliff in April. Almost no tourists. CHECK THE SEASON before committing two hours. Alternatives: Bassi Wildlife Sanctuary (25 km, antelope, a chance at a leopard at dusk) or tea by the pool at Castle Bijaipur."
+      },
+      {
+        "time": "18:30",
+        "what": "Sunset from the fort wall",
+        "status": "planned",
+        "desc": "If you skip Menal, go back up instead. The west rampart near Padmini Palace at sunset, with the plateau emptying out, is the quietest hour of the whole trip."
+      },
+      {
+        "time": "20:00",
+        "what": "DINNER",
+        "status": "planned",
+        "desc": "Fort Road non-veg, or the hotel non-veg thali you arranged yesterday."
+      }
+    ],
+    "logistics": [
+      [
+        "Fuel",
+        "None needed — local day"
+      ],
+      [
+        "Inside the fort",
+        "~7 km internal circuit road. Drive it; walking the whole plateau is not realistic."
+      ],
+      [
+        "Tickets",
+        "One ASI ticket covers the monument cluster. Guides wait at Ram Pol."
+      ]
+    ],
+    "wd": "MON",
+    "km": 110,
+    "load": "Light",
+    "star": true,
+    "stat": "★ EXTRA DAY · 110 km local · 2h30 on wheels · Night: Chittorgarh (2 of 2)",
+    "map": "https://www.google.com/maps/dir/Chittorgarh/Menal",
+    "photos": [
+      "chittorgarh-fort",
+      "vijay-stambh",
+      "kirti-stambh",
+      "rana-kumbha-palace"
+    ]
+  },
+  {
+    "n": "Day 4",
+    "title": "Chittorgarh → Udaipur",
+    "alerts": [
+      {
+        "type": "meat",
+        "html": "<b>Udaipur is the best eating day of the trip.</b> Three Rajasthani mutton preparations exist and Udaipur does all of them: <b>laal maas</b> (fiery, Mathania chillies, no turmeric), <b>safed maas</b> (white, cashew and yoghurt, mild), and <b>dungar maas</b> (smoked over charcoal and ghee). Laal maas at lunch at <b>Viraasat — The Haveli</b>, dungar maas at dinner at <b>1559 AD</b>. Don't order both on the same table unless all three of you are serious — portions are large and the laal maas is properly hot."
+      },
+      {
+        "type": "warn",
+        "html": "<b>Parking is Udaipur's weak point.</b> The Lal Ghat and Gangaur Ghat lanes mostly have none. <b>Confirm parking in writing before you book.</b> Paid lot near Gangaur Ghat runs about ₹30/hr."
+      },
+      {
+        "type": "tip",
+        "html": "<b>If Udaipur prices come back high</b> — and on peak weekends they will — use <b>Variant A2</b> in the Variants section: run Udaipur as a pass-through and move the freed night to Jaisalmer. That shifts a night from your least-wanted city to your most-wanted one."
+      }
+    ],
+    "tl": [
+      {
+        "time": "07:45",
+        "what": "Depart Chittorgarh",
+        "status": "planned",
+        "desc": "The early start buys you a full Udaipur day despite only one night."
+      },
+      {
+        "time": "10:15",
+        "what": "Check in / drop bags",
+        "status": "planned",
+        "desc": "120 km on NH-48, fast four-lane through pretty Aravalli sections near Debari."
+      },
+      {
+        "time": "11:00",
+        "what": "City Palace complex",
+        "status": "planned",
+        "key": true,
+        "desc": "The largest palace complex in Rajasthan. Mor Chowk's peacock mosaics, Sheesh Mahal, Zenana Mahal. The Crystal Gallery is a separate ticket and genuinely odd — a complete crystal furniture service ordered from Birmingham in 1877, never unpacked in the Maharana's lifetime."
+      },
+      {
+        "time": "13:45",
+        "what": "LUNCH — Viraasat, The Haveli",
+        "status": "planned",
+        "key": true,
+        "desc": "This is the one. Desi laal maas, maas bhujma, desi chicken masala, in a green courtyard. Around ₹600–650 a plate for the mutton and worth it. Book or arrive before the rush."
+      },
+      {
+        "time": "15:30",
+        "what": "Jagdish Temple",
+        "status": "planned",
+        "desc": "150 m from the palace gate. 1651, Indo-Aryan, carved elephants up the entrance stair."
+      },
+      {
+        "time": "16:15",
+        "what": "Lake Pichola boat ride",
+        "status": "planned",
+        "desc": "From Rameshwar Ghat inside the palace complex. Passes Jag Mandir island. The Lake Palace only really works from the water."
+      },
+      {
+        "time": "17:45",
+        "what": "Sajjangarh (Monsoon Palace) — sunset",
+        "status": "planned",
+        "key": true,
+        "desc": "9 km west inside a wildlife sanctuary. Private cars stop at the sanctuary gate and you take the forest department shuttle the last 4 km — budget 20 min. Sunset over the Aravallis and all five lakes. Best view in southern Rajasthan."
+      },
+      {
+        "time": "20:30",
+        "what": "DINNER — 1559 AD",
+        "status": "planned",
+        "desc": "Near Fateh Sagar. Garden seating, live music, and the dungar maas (smoked mutton) is the standout. Or Pick & Move on City Station Road for a cheaper, busier, very good laal maas."
+      }
+    ],
+    "logistics": [
+      [
+        "Fuel",
+        "None critical — fill tomorrow morning in town"
+      ],
+      [
+        "Stay",
+        "Lal Ghat / Hanuman Ghat area. Triple rooms are scarce in the old city — a haveli suite is often cheaper than two rooms."
+      ],
+      [
+        "Parking",
+        "Gangaur Ghat paid lot, ~₹30/hr. Sajjangarh: sanctuary gate, then shuttle."
+      ]
+    ],
+    "wd": "TUE",
+    "km": 165,
+    "load": "Light–moderate",
+    "stat": "120 km + 45 local · 4h15 on wheels · NH-48 · Night: Udaipur (single night)",
+    "map": "https://www.google.com/maps/dir/Chittorgarh/Udaipur",
+    "photos": [
+      "lake-pichola",
+      "udaipur-city-palace",
+      "monsoon-palace",
+      "jagdish-temple"
+    ]
+  },
+  {
+    "n": "Day 5",
+    "title": "Udaipur → Mount Abu",
+    "alerts": [
+      {
+        "type": "warn",
+        "html": "<b>Hard constraint.</b> The Dilwara Temples admit non-Jain visitors <b>only between 12:00 and 15:00</b>, and no photography is permitted inside. The whole day is built backwards from that window. Miss it and Mount Abu loses its reason to be on this itinerary."
+      },
+      {
+        "type": "warn",
+        "html": "<b>Brim the tank at Abu Road (F5).</b> There is no fuel on the 27 km ghat and thin supply for the whole of tomorrow's 480 km. Non-negotiable."
+      },
+      {
+        "type": "meat",
+        "html": "<b>Mount Abu is a Jain pilgrimage town and non-veg options are few. These two are the ones.</b><br><b>Zaika Restaurant</b> (Sani Gaon, near Arbuda Circle) — halal, and by consistent local account the best non-veg kitchen in town. <b>Chicken Toofani</b> and <b>Chicken Hara Masala</b> are what people come back for. <b>Note the split hours: 11:00–15:00 and 19:00–22:15 only.</b><br><b>Sindh A Punjab</b> (Taxi Stand Circle) — laal maas, amritsari tikka, reshmi tikka, matka biryani. Open 11:00–23:30 continuously, so it's the safer late-lunch choice. Dated room, good tikkas.<br><b>Plan: Sindh A Punjab for the late lunch, Zaika at 19:30 for dinner — order the Chicken Toofani.</b>"
+      }
+    ],
+    "tl": [
+      {
+        "time": "07:30",
+        "what": "Fuel (F4), depart Udaipur",
+        "status": "planned",
+        "desc": "Fill in town. Prices and pump quality both drop on the Pindwara road."
+      },
+      {
+        "time": "10:00",
+        "what": "Rest stop — Swaroopganj",
+        "status": "planned",
+        "desc": "125 km done on NH-27/NH-58 through the Aravalli foothills. Tea and washrooms on the bypass."
+      },
+      {
+        "time": "10:50",
+        "what": "Abu Road — BRIM THE TANK (F5)",
+        "status": "planned",
+        "key": true,
+        "desc": "See the warning above."
+      },
+      {
+        "time": "11:00",
+        "what": "The Abu ghat, 27 km",
+        "status": "planned",
+        "desc": "Climb to 1,220 m. Continuous hairpins, langurs on the parapets, two or three viewpoints. Pleasant in the Victoris; second gear on the descents tomorrow."
+      },
+      {
+        "time": "12:10",
+        "what": "DILWARA TEMPLES",
+        "status": "planned",
+        "key": true,
+        "desc": "3 km from town centre. Eleventh- and thirteenth-century Jain temples in white marble carved so finely the ceiling lotuses are translucent. Spend your time in Vimal Vasahi and Luna Vasahi. Leave phones, cameras and all leather in the car. Free entry."
+      },
+      {
+        "time": "14:15",
+        "what": "LATE LUNCH — Sindh A Punjab",
+        "status": "planned",
+        "desc": "You'll be hungry; Dilwara takes longer than people expect. Zaika is closing at 15:00, hence this choice."
+      },
+      {
+        "time": "15:45",
+        "what": "Check in",
+        "status": "planned",
+        "desc": "Carry a light jacket out of the car — it drops sharply after dark at this altitude."
+      },
+      {
+        "time": "16:30",
+        "what": "Nakki Lake",
+        "status": "planned",
+        "desc": "Pedal boats, Toad Rock on the far bank, the bazaar loop. After five days of heat this is as much the point of Mount Abu as the temples are."
+      },
+      {
+        "time": "17:45",
+        "what": "Sunset Point",
+        "status": "planned",
+        "key": true,
+        "desc": "Park and walk the last 400 m, or take a pushcart. Honeymoon Point is quieter with an arguably better view west over the plains."
+      },
+      {
+        "time": "20:00",
+        "what": "DINNER — Zaika",
+        "status": "planned",
+        "desc": "Chicken Toofani. Kitchen closes 22:15."
+      }
+    ],
+    "logistics": [
+      [
+        "Fuel",
+        "F4 Udaipur town · <b>F5 Abu Road — BRIM</b>"
+      ],
+      [
+        "Rest stops",
+        "Gogunda 45 · Swaroopganj 125 · Abu Road 138"
+      ],
+      [
+        "Stay",
+        "Radisson Resort Mount Abu (handles three most easily, proper parking, good kitchen) · Hotel Rock Regency, Pilgrim Rd (central, walkable to Nakki) · Hummingbird Resorts, Achalgarh (pool and gardens, 8 km out)"
+      ],
+      [
+        "Optional",
+        "Guru Shikhar, 15 km — highest point in the Aravallis at 1,722 m. Better as a 05:45 sunrise run tomorrow, but tomorrow is your longest drive. Be honest about whether you'll manage it."
+      ]
+    ],
+    "wd": "WED",
+    "km": 195,
+    "load": "Moderate",
+    "stat": "165 km + 30 local · 4h40 on wheels · NH-27 → NH-58 → Abu ghat · Night: Mount Abu",
+    "map": "https://www.google.com/maps/dir/Udaipur/Pindwara/Abu+Road/Mount+Abu",
+    "photos": [
+      "dilwara-temples",
+      "nakki-lake",
+      "mount-abu",
+      "guru-shikhar"
+    ]
+  },
+  {
+    "n": "Day 6",
+    "title": "Mount Abu → Barmer → Jaisalmer",
+    "alerts": [
+      {
+        "type": "warn",
+        "html": "<b>This is a transit day, not a sightseeing day.</b> There is very little between Abu Road and Barmer beyond scrub, wind turbines and Bishnoi villages. Independent accounts put the run at 430–500 km and 8–9 hours via Sanchore and Barmer, with roughly 40 km of poor surface around Dhorimanna. Leave early, eat properly at Barmer, be off the highway before dark. <b>The good news:</b> because you now have two nights in Jaisalmer, arriving tired tonight costs you nothing."
+      },
+      {
+        "type": "warn",
+        "html": "<b>BRIM AT BARMER (F6).</b> 155 km of near-empty desert highway follows. Do not start that leg below half a tank. Mobile signal is patchy between Sanchore and Barmer — download offline maps before you leave Mount Abu."
+      },
+      {
+        "type": "meat",
+        "html": "<b>Barmer lunch.</b> <b>Zayka Restaurant</b> at Hotel Kailash International on the Jaisalmer–Radhanpur road (NH-68) — directly on your route out of town, easy parking, best-regarded kitchen in Barmer. The obvious choice. <b>Kargil Chicken Corner</b> (Sindhari Chauraha) does cheap quick biryani and tandoori but reviews on billing are mixed — confirm prices before ordering. <b>Order:</b> a tandoori platter and chicken curry with tawa roti. Keep it moderate — 155 km of desert follows immediately."
+      }
+    ],
+    "tl": [
+      {
+        "time": "05:45",
+        "what": "Guru Shikhar (optional)",
+        "status": "planned",
+        "desc": "Only if all three of you genuinely want it. Losing an hour today costs more than on any other day."
+      },
+      {
+        "time": "07:00",
+        "what": "Depart Mount Abu",
+        "status": "planned",
+        "key": true,
+        "desc": "Descend the ghat in low gear. Cool and empty at this hour."
+      },
+      {
+        "time": "07:45",
+        "what": "Abu Road",
+        "status": "planned",
+        "desc": "Top up if you didn't brim yesterday."
+      },
+      {
+        "time": "08:00",
+        "what": "Abu Road → Sanchore (135 km)",
+        "status": "planned",
+        "desc": "Via Revdar and Raniwara. Decent road, light traffic, good averages."
+      },
+      {
+        "time": "10:00",
+        "what": "Rest stop — Sanchore",
+        "status": "planned",
+        "desc": "Tea, washroom, fuel available. Last town before the thin stretch."
+      },
+      {
+        "time": "10:20",
+        "what": "Sanchore → Dhorimanna → Barmer (95 km)",
+        "status": "planned",
+        "desc": "The rough section. 50–60 km/h averages. Livestock on the carriageway is normal."
+      },
+      {
+        "time": "11:45",
+        "what": "BARMER — lunch and BRIM (F6)",
+        "status": "planned",
+        "key": true,
+        "desc": "Zayka at Hotel Kailash International. Barmer also merits 20 minutes for its ajrak block-printing and embroidery workshops if you want a souvenir with actual provenance."
+      },
+      {
+        "time": "13:00",
+        "what": "Barmer → Jaisalmer (155 km)",
+        "status": "planned",
+        "desc": "NH-11. Open desert highway, very light traffic, long empty stretches."
+      },
+      {
+        "time": "15:45",
+        "what": "Arrive Jaisalmer, check in",
+        "status": "planned",
+        "key": true,
+        "desc": "Two nights here — unpack properly."
+      },
+      {
+        "time": "17:00",
+        "what": "Easy evening: the fort at dusk",
+        "status": "planned",
+        "desc": "No agenda. Park at Gopa Chowk, walk up into the fort and let it get dark around you. Sonar Quila is one of very few living forts left — roughly a quarter of the old city still lives inside the walls, and evening is when that's most obvious."
+      },
+      {
+        "time": "20:00",
+        "what": "DINNER — Manwaar (Kake Da Dhaba)",
+        "status": "planned",
+        "desc": "Mandir Palace Road. Laal maas, bhuna chicken, handi mutton, and one of the few places in Jaisalmer that serves alcohol. Family-friendly, easy with three."
+      }
+    ],
+    "logistics": [
+      [
+        "Fuel",
+        "Brim at Abu Road, <b>brim again at Barmer</b>. Non-negotiable both times."
+      ],
+      [
+        "Rest stops",
+        "Revdar 55 · Sanchore 162 · Dhorimanna 215 · <b>Barmer 257</b> · Fatehgarh 340"
+      ],
+      [
+        "Stay",
+        "Killa Bhawan (inside the fort, tiny, exceptional — confirm a triple) · WelcomHeritage Mandir Palace, Gandhi Chowk Rd (working palace, big rooms) · Rang Mahal on the Sam road (pool, easiest parking). Stay in town <i>both</i> nights and drive out to the dunes tomorrow rather than moving hotels."
+      ],
+      [
+        "Signal",
+        "Patchy Sanchore→Barmer. Save your roadside assistance number offline."
+      ]
+    ],
+    "wd": "THU",
+    "km": 480,
+    "load": "Heavy",
+    "stat": "THE LONG HAUL · 480 km · 8h15 pure driving, 9–10 h door to door · Night: Jaisalmer (1 of 2)",
+    "map": "https://www.google.com/maps/dir/Mount+Abu/Sanchore/Barmer/Jaisalmer",
+    "photos": [
+      "jaisalmer-fort",
+      "barmer",
+      "thar-desert"
+    ]
+  },
+  {
+    "n": "Day 7",
+    "title": "Jaisalmer — the full day",
+    "alerts": [
+      {
+        "type": "tip",
+        "html": "<b>This is the best day of the trip and it exists because of the re-plan.</b> Kuldhara, Khaba and Bada Bagh are what the extra night buys you — nobody on a one-night Jaisalmer schedule ever sees them."
+      },
+      {
+        "type": "warn",
+        "html": "<b>Do not drive onto the sand at Sam.</b> That is what the jeep operators are for; the Victoris is not a dune vehicle. Park on the road. Also: never drive out to Sam on a low tank — there is no reliable pump there."
+      },
+      {
+        "type": "meat",
+        "html": "Jaisalmer's non-veg is concentrated at <b>The Namaste Restaurant</b> (near Sunset Point) — by repeated local account the <b>best laal maas in the city</b>, plus a very good butter chicken, with a rooftop fort view — and <b>Manwaar / Kake Da Dhaba</b> for handi mutton and bhuna chicken. <b>1156AD</b> at Jawahar Niwas Palace does good seekh kababs (kitchen 12:00–16:00 only). Note that several pretty in-fort rooftops (<b>Fort Oasis</b>, for one) are <b>entirely vegetarian</b> — lovely for breakfast, wrong for dinner. <b>Since tonight's camp dinner will likely be veg, take your laal maas at lunch today or at Namaste on Day 6 evening.</b>"
+      }
+    ],
+    "tl": [
+      {
+        "time": "06:30",
+        "what": "Gadisar Lake at sunrise",
+        "status": "planned",
+        "key": true,
+        "desc": "Do this first, every time. A 14th-century rainwater reservoir ringed with ghats, chhatris and the carved Tilon ki Pol gateway. Empty and gold at this hour; a crush by ten. 2 km from the fort."
+      },
+      {
+        "time": "07:45",
+        "what": "Breakfast with a fort view",
+        "status": "planned",
+        "desc": "Pol Haveli Rooftop near Hanuman Chauraha, The Namaste near Sunset Point, or Lake View Restaurant up on the fort itself. All open by 07:30."
+      },
+      {
+        "time": "09:00",
+        "what": "Jaisalmer Fort, properly",
+        "status": "planned",
+        "key": true,
+        "desc": "Park at Gopa Chowk — vehicles are restricted inside and the lanes are barely car-width. Raj Mahal, the seven Jain temples (Chandraprabhu and Parshvanath are the two worth time), Laxminath Temple, and the full bastion walk. A guide is worth it here."
+      },
+      {
+        "time": "11:45",
+        "what": "Patwon ki Haveli & Salim Singh ki Haveli",
+        "status": "planned",
+        "desc": "Patwon is five havelis built by one brocade-trading family — the most elaborate facades in Rajasthan. Salim Singh's peacock-arched upper storey is 200 m on. Nathmal ki Haveli is a third, carved by two brothers working from opposite ends and famously asymmetric."
+      },
+      {
+        "time": "13:15",
+        "what": "LUNCH — 1156AD",
+        "status": "planned",
+        "desc": "Jawahar Niwas Palace. Best room in town, wide menu, good seekh kababs and butter chicken. Kitchen 12:00–16:00 only. Alternative: Jaisal Panorama Rooftop for the framed fort view."
+      },
+      {
+        "time": "15:00",
+        "what": "Kuldhara & Khaba Fort",
+        "status": "planned",
+        "key": true,
+        "desc": "18 km south-west. Kuldhara is an abandoned Paliwal Brahmin village, emptied overnight in the early 1800s and never resettled — restored streets, roofless houses, a real sense of desertion. Khaba Fort 8 km further has ruins plus peacocks and a small museum."
+      },
+      {
+        "time": "16:30",
+        "what": "Bada Bagh (en route back)",
+        "status": "planned",
+        "desc": "The royal cenotaph garden — rows of sandstone chhatris on a terraced hillside with wind turbines behind them. Very good in late light, ten minutes off the Sam road."
+      },
+      {
+        "time": "17:30",
+        "what": "Drive to Sam Sand Dunes (42 km)",
+        "status": "planned",
+        "desc": "Straight, fast, well-surfaced. Be on the dunes by 18:00."
+      },
+      {
+        "time": "18:00",
+        "what": "Camel safari & sunset",
+        "status": "planned",
+        "key": true,
+        "desc": "Camel ride or jeep dune-bash over the ridges, then sunset from a ridge top. This is the Thar, and it earns its reputation."
+      },
+      {
+        "time": "19:45",
+        "what": "Folk evening & dinner",
+        "status": "planned",
+        "desc": "Kalbeliya dance, Manganiyar musicians, bonfire, thali dinner under a very good sky at Desert Heritage Camp or Desert Dream Holiday Resort."
+      },
+      {
+        "time": "22:30",
+        "what": "Drive back to town, or stay",
+        "status": "planned",
+        "desc": "If driving back: 60–70 km/h. Cattle and camels cross that road at night and trucks run high beams."
+      }
+    ],
+    "logistics": [
+      [
+        "Fuel",
+        "Top up in town before the Sam run"
+      ],
+      [
+        "Parking",
+        "Gopa Chowk for the fort. Never drive into the fort lanes. At Sam, park on the road."
+      ],
+      [
+        "Camp vs town",
+        "Camp = dune sunrise, but you do the 42 km back in the morning. Town = a proper bed and the fort at night. Recommended: town both nights."
+      ]
+    ],
+    "wd": "FRI",
+    "km": 150,
+    "load": "Light",
+    "star": true,
+    "stat": "★ EXTRA DAY · 150 km local · 3h20 on wheels · Night: Jaisalmer or Sam camp (2 of 2)",
+    "map": "https://www.google.com/maps/dir/Jaisalmer/Kuldhara/Khaba+Fort/Sam+Sand+Dunes",
+    "photos": [
+      "jaisalmer-fort",
+      "patwon-ki-haveli",
+      "gadisar-lake",
+      "kuldhara",
+      "bada-bagh"
+    ]
+  },
+  {
+    "n": "Day 8",
+    "title": "Jaisalmer → Bikaner",
+    "alerts": [
+      {
+        "type": "warn",
+        "html": "<b>This is the day that makes Sunday work.</b> Junagarh Fort has moved from the return leg to this evening, which means the return drive becomes a clean daylight run. The cost is an 08:15 departure from Jaisalmer and a disciplined 15-minute Pokhran stop. <b>Junagarh's last entry is around 16:30 — being at the gate by 15:45 is the one hard target of the day.</b> Also do your bhujia and sweet shopping tonight; there is no time tomorrow morning."
+      },
+      {
+        "type": "meat",
+        "html": "<b>Bikaner has a real non-veg culture and this is your best chicken night.</b><br><b>Sigdi Veg & Non Veg Restaurant</b> (Jai Narayan Vyas Colony) is the pick — <b>Akbari Chicken</b>, <b>smoky Irani tikka</b>, Turkish chicken tikka, and a mutton shank <i>nalli nihari</i>. Reasonable prices, slow-ish service so order early. Opens 13:30.<br><b>Chacha Chicken Corner (Lalji)</b>, Rao Bikaji Market — a proper chicken-corner institution. Tandoori and chicken curry, cheap, quick, no atmosphere whatsoever. Mutton by weight too.<br><b>KK Chicken Corner</b>, Amarsinghpura — evenings only from 18:00, tender mutton with tawa roti.<br><b>Order at Sigdi:</b> Akbari Chicken and the smoky Irani tikka. Two starters and two mains is about right for three."
+      },
+      {
+        "type": "tip",
+        "html": "<b>Seasonal, Nov–Feb only:</b> Khichan village, 4 km off the highway near Phalodi, hosts several thousand migratory demoiselle cranes at the morning feeding ground. Extraordinary — but it's a morning event, so you'd need to leave Jaisalmer at 06:30 to catch it."
+      }
+    ],
+    "tl": [
+      {
+        "time": "06:15",
+        "what": "Dune sunrise (if you stayed at Sam)",
+        "status": "planned",
+        "desc": "Worth an alarm. Then straight back to town — no lingering today."
+      },
+      {
+        "time": "07:45",
+        "what": "Breakfast, check out, load the car",
+        "status": "planned",
+        "desc": "Everything packed before you sit down to eat."
+      },
+      {
+        "time": "08:15",
+        "what": "Fuel (F7), depart for Bikaner",
+        "status": "planned",
+        "key": true,
+        "desc": "90 minutes earlier than a relaxed version of this day. This single change is what lets you see Junagarh tonight and drive home in daylight tomorrow."
+      },
+      {
+        "time": "09:45",
+        "what": "Pokhran (110 km) — 15 min only",
+        "status": "planned",
+        "desc": "Stretch, photograph Pokhran Fort from the road, move on. The town is best known for India's 1974 and 1998 nuclear tests in the desert range nearby. Don't tour the fort — you're seeing a better one in six hours."
+      },
+      {
+        "time": "11:20",
+        "what": "LUNCH — Phalodi (175 km), 40 min",
+        "status": "planned",
+        "key": true,
+        "desc": "Fuel (F8) and eat. Phalodi's highway restaurants do decent chicken. Keep it brisk."
+      },
+      {
+        "time": "14:00",
+        "what": "Karni Mata, Deshnoke — ONLY if ahead",
+        "status": "planned",
+        "desc": "30 km before Bikaner. The temple of some 25,000 resident rats, considered sacred; barefoot entry. Not for everyone. Skip it unless you're through Deshnoke by 14:15 — Junagarh matters more and its last entry is ~16:30."
+      },
+      {
+        "time": "15:15",
+        "what": "Arrive Bikaner, check in fast",
+        "status": "planned",
+        "key": true,
+        "desc": "Drop bags, don't unpack."
+      },
+      {
+        "time": "15:45",
+        "what": "JUNAGARH FORT (moved from Sunday)",
+        "status": "planned",
+        "key": true,
+        "desc": "Built 1589 on flat ground rather than a hill and never conquered. Anup Mahal with its gold-leaf and lacquer work, Phool Mahal, Karan Mahal, and a first-world-war DH.9 biplane in the courtyard museum. Last entry is around 16:30 — be at the gate by 15:45 and you have a comfortable 75 minutes."
+      },
+      {
+        "time": "17:15",
+        "what": "Rampuria Havelis at dusk",
+        "status": "planned",
+        "desc": "Old city, free, no ticket, no hours. Red-sandstone merchant mansions with extraordinary jharokha facades. The best hour in Bikaner and most visitors skip it entirely."
+      },
+      {
+        "time": "19:00",
+        "what": "DINNER — Sigdi, then bhujia run",
+        "status": "planned",
+        "key": true,
+        "desc": "The last big meat night. Afterwards: old-city sweet shops for Bikaneri rasgulla, and buy bhujia to take home — this is the town that invented it. Do the shopping tonight; there is no time tomorrow."
+      },
+      {
+        "time": "21:30",
+        "what": "Early night — 06:00 alarm",
+        "status": "planned",
+        "desc": "Tomorrow is a 460 km drive and you want it done in daylight."
+      }
+    ],
+    "logistics": [
+      [
+        "Fuel",
+        "F7 Jaisalmer (before departure) · F8 Pokhran or Phalodi"
+      ],
+      [
+        "Rest stops",
+        "Pokhran 110 · Phalodi 175 · Deshnoke 300"
+      ],
+      [
+        "Stay",
+        "<b>The Laxmi Niwas Palace</b> — an actual Edwardian-era royal palace, enormous rooms that absorb a third bed easily, evening folk performances, best-value palace stay on this route. · Maharaja Ganga Mahal (heritage, closer to Junagarh, cheaper) · Hotel Bhairon Vilas (beside the fort, characterful, dated)"
+      ]
+    ],
+    "wd": "SAT",
+    "km": 355,
+    "load": "Heavy",
+    "stat": "330 km + 25 local · 6h00 on wheels · NH-11 via Pokhran & Phalodi · Night: Bikaner · JUNAGARH TONIGHT",
+    "map": "https://www.google.com/maps/dir/Jaisalmer/Pokhran/Phalodi/Bikaner",
+    "photos": [
+      "junagarh-fort",
+      "karni-mata-temple",
+      "pokhran-fort",
+      "bikaner"
+    ]
+  },
+  {
+    "n": "Return",
+    "title": "Bikaner → Delhi",
+    "alerts": [
+      {
+        "type": "tip",
+        "html": "<b>You are home by mid-afternoon, with time to repack for your onward travel.</b> This used to be a 12:30 departure and a 21:00 arrival. Moving Junagarh Fort to Saturday evening freed the whole morning, so Sunday is now a straight 06:30 run with one real stop. <b>Nothing is cut that you haven't already seen.</b>"
+      },
+      {
+        "type": "warn",
+        "html": "<b>Protect the 06:30 departure.</b> Settle the hotel bill on Saturday night, load the car on Saturday night, and do your bhujia shopping on Saturday night. A 07:30 start instead of 06:30 puts you into Delhi's Sunday-evening ring road traffic and costs you closer to two hours, not one."
+      },
+      {
+        "type": "tip",
+        "html": "<b>Mandawa is the one optional stop, and it's worth it.</b> 20 km off the route, the finest painted-haveli town in Rajasthan — frescoed merchant houses, almost no crowds, a very good last taste of the state. It costs 75 minutes and you still reach Delhi by 15:45. Drop it if you want to be home by 14:30 sharp."
+      },
+      {
+        "type": "tip",
+        "html": "<b>Fuel arbitrage worth ~₹480.</b> Rajasthan levies the highest petrol VAT in India — roughly ₹11/L more than Delhi. At Sikar take only enough to reach home, then fill in Delhi."
+      }
+    ],
+    "tl": [
+      {
+        "time": "06:00",
+        "what": "Alarm. Car already loaded.",
+        "status": "planned",
+        "desc": "Bill settled and bags in the boot last night. You should be pulling out of the gate 30 minutes after the alarm."
+      },
+      {
+        "time": "06:30",
+        "what": "DEPART BIKANER — the one time that matters",
+        "status": "planned",
+        "key": true,
+        "desc": "NH-11 east. Empty roads at this hour and you cover the first 110 km fast."
+      },
+      {
+        "time": "08:15",
+        "what": "Breakfast — Ratangarh (110 km)",
+        "status": "planned",
+        "desc": "35 minutes. Proper meal, washrooms, then straight back on the road."
+      },
+      {
+        "time": "10:15",
+        "what": "Mandawa (optional, +75 min)",
+        "status": "planned",
+        "desc": "20 km off the route into the Shekhawati painted-haveli belt. Frescoed merchant houses, whole walls of them, almost no crowds. Skip it if you want the earliest possible arrival — it's the only thing standing between you and a 14:30 finish."
+      },
+      {
+        "time": "12:00",
+        "what": "Sikar — final fuel (F9)",
+        "status": "planned",
+        "key": true,
+        "desc": "Minimum fill only. Rajasthan petrol runs ~₹11/L above Delhi, so take just enough to get home and fill there."
+      },
+      {
+        "time": "12:45",
+        "what": "Behror — lunch, 40 min",
+        "status": "planned",
+        "desc": "Back at Highway King, closing the loop where you opened it. Last stop; eat properly and drive the final stretch fresh."
+      },
+      {
+        "time": "14:30",
+        "what": "ARRIVE DELHI — circuit closed",
+        "status": "planned",
+        "key": true,
+        "desc": "~2,540 km in nine days. Two UNESCO forts, one living fort, a hill station and a desert. Home in daylight with the afternoon and evening free for your onward travel."
+      }
+    ],
+    "logistics": [
+      [
+        "Fuel",
+        "F9 Sikar — minimum fill, then top up in Delhi"
+      ],
+      [
+        "Rest stops",
+        "Ratangarh 110 · Fatehpur 190 · Sikar 245 · Behror 340"
+      ],
+      [
+        "Arrival",
+        "<b>~14:30 without Mandawa, ~15:45 with it.</b> Both are comfortably in daylight."
+      ],
+      [
+        "Done Saturday night",
+        "Hotel bill settled · car loaded · bhujia and sweets bought · Junagarh Fort already seen"
+      ]
+    ],
+    "wd": "SUN",
+    "km": 460,
+    "load": "Heavy",
+    "stat": "460 km · 8h00 driving · NH-11 → NH-52 → NH-48 · DELHI BY ~14:30, DAYLIGHT",
+    "map": "https://www.google.com/maps/dir/Bikaner/Ratangarh/Mandawa/Sikar/Behror/Delhi",
+    "photos": [
+      "junagarh-fort",
+      "mandawa",
+      "shekhawati"
+    ]
+  }
+]

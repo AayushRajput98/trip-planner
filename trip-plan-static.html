@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fort Country — Rajasthan Self-Drive Circuit</title>
+
+<!--
+================================================================================
+  FORT COUNTRY  —  Rajasthan self-drive circuit planner
+  8 touring days + return leg · 3 travellers · Maruti Victoris
+  Built 14 Sep 2026
+================================================================================
+
+  HOW THIS FILE IS ORGANISED  (read this before editing anything)
+  --------------------------------------------------------------
+  [1] THEME          — colours, fonts, spacing tokens.        Search: SECTION 1
+  [2] STYLES         — all CSS. Rarely needs touching.        Search: SECTION 2
+  [3] TRIP DATA      — ALL CONTENT LIVES HERE. Edit this.     Search: SECTION 3
+  [4] PAGE SHELL     — static HTML scaffolding.               Search: SECTION 4
+  [5] RENDERERS      — turns TRIP data into HTML.             Search: SECTION 5
+  [6] BUDGET ENGINE  — the live cost calculator.              Search: SECTION 6
+  [7] PHOTOS         — image pipeline + how to swap photos.   Search: SECTION 7
+  [8] UI BEHAVIOUR   — nav, collapse, checklist, theme.       Search: SECTION 8
+
+  TO CHANGE THE ITINERARY you only ever need SECTION 3.
+  Everything renders from that object. Add a day, delete a stop, change a
+  restaurant — it all flows through automatically.
+
+  NOTE ON PHOTOS — read this if images don't appear
+  --------------------------------------------------
+  Photos load in three tiers, tried in order, per image:
+    1. A URL you pasted into PHOTO_URLS (SECTION 3). Always wins. Never fails.
+    2. A local file at  images/<name>.jpg  next to this HTML file.
+    3. Wikipedia's API — ONLY works when the page is served over http://,
+       not when opened as a file:// document. Browsers block cross-origin
+       fetch from local files. This is why tier 1 and 2 exist.
+
+  So: if you open this file by double-clicking it, tier 3 will be blocked and
+  you'll see the diagnostic banner at the top of the itinerary. Two fixes,
+  either works:
+
+    (a) SERVE IT — open a terminal in this folder and run:
+            python3 -m http.server 8000
+        then visit  http://localhost:8000/Rajasthan-FortCountry-Interactive.html
+        All photos appear automatically. Takes ten seconds.
+
+    (b) USE YOUR OWN PHOTOS — make an "images" folder next to this file and
+        drop in jpgs named exactly as listed in the banner
+        (jaisalmer-fort.jpg, chittorgarh-fort.jpg, ...). Or paste any image
+        URL into PHOTO_URLS in SECTION 3. This works offline and on any
+        browser, and lets you use your own pictures after the trip.
+================================================================================
+-->
+
+<style>
+/* ============================================================================
+   SECTION 1 — THEME TOKENS
+   Change the whole look of the page from these ~20 lines.
+   ========================================================================== */
+:root{
+  --maroon:#6b1d1d;        /* primary brand / headers        */
+  --rust:#8a2b12;          /* secondary accent               */
+  --gold:#c9973f;          /* rules, highlights              */
+  --sand:#f2ebdd;          /* tinted panels                  */
+  --paper:#fdfbf7;         /* page background                */
+  --card:#ffffff;          /* card background                */
+  --ink:#22201d;           /* body text                      */
+  --muted:#7a7166;         /* secondary text                 */
+  --line:#e2dcd2;          /* borders                        */
+  --green:#2e7d5b;         /* "tip" callouts                 */
+  --warn:#b3541e;          /* "warning" callouts             */
+  --meat:#8a2b12;          /* "non-veg" callouts             */
+  --radius:10px;
+  --maxw:1120px;
+  --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --serif:Georgia,"Times New Roman",serif;
+}
+/* Dark theme — toggled by adding .dark to <body> */
+body.dark{
+  --paper:#171512; --card:#211e1a; --ink:#ece6dc; --muted:#a49a8c;
+  --line:#37322b; --sand:#2a251e; --maroon:#c9973f; --rust:#d98f5c;
+}
+
+/* ============================================================================
+   SECTION 2 — STYLES
+   ========================================================================== */
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:var(--paper);color:var(--ink);
+     line-height:1.55;font-size:15px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 18px}
+a{color:#1a5b8a;text-decoration:none}
+a:hover{text-decoration:underline}
+body.dark a{color:#7fb6dd}
+h1,h2,h3,h4{margin:0 0 8px;color:var(--maroon);line-height:1.25}
+h2{font-size:1.5rem;border-bottom:3px solid var(--gold);padding-bottom:6px;margin:0 0 16px}
+h3{font-size:1.1rem;color:var(--rust)}
+h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-top:14px}
+p{margin:0 0 10px}
+small,.small{font-size:.8rem;color:var(--muted)}
+
+/* ---- Hero ---- */
+.hero{background:linear-gradient(160deg,var(--maroon),#3d0f0f);color:#fff;padding:46px 0 34px;position:relative;overflow:hidden}
+.hero h1{color:#fff;font-size:3rem;letter-spacing:-1.5px;margin:0}
+.hero .kicker{letter-spacing:.35em;font-size:.7rem;color:var(--gold);text-transform:uppercase}
+.hero .sub{color:#e9d9bd;max-width:660px;margin-top:10px}
+.hero svg{position:absolute;right:-40px;bottom:-10px;opacity:.16;width:520px;pointer-events:none}
+.pills{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px}
+.pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+      padding:4px 12px;border-radius:20px;font-size:.78rem}
+
+/* ---- Sticky nav ---- */
+nav{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:1px solid var(--line);
+    box-shadow:0 1px 6px rgba(0,0,0,.05)}
+nav .wrap{display:flex;gap:4px;overflow-x:auto;padding:8px 18px;align-items:center}
+nav button{background:none;border:1px solid transparent;color:var(--muted);font:inherit;font-size:.82rem;
+           padding:6px 11px;border-radius:7px;cursor:pointer;white-space:nowrap}
+nav button:hover{background:var(--sand);color:var(--ink)}
+nav button.on{background:var(--maroon);color:#fff;border-color:var(--maroon)}
+body.dark nav button.on{color:#171512}
+.navspacer{flex:1}
+.iconbtn{background:none;border:1px solid var(--line);border-radius:7px;cursor:pointer;
+         padding:5px 9px;font-size:.9rem;color:var(--ink)}
+
+/* ---- Generic blocks ---- */
+section{padding:34px 0;scroll-margin-top:60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+      padding:18px;margin-bottom:16px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.callout{border-left:4px solid var(--gold);background:var(--sand);padding:11px 14px;
+         border-radius:0 8px 8px 0;margin:12px 0;font-size:.9rem}
+.callout.warn{border-color:var(--warn);background:#fdf3ec}
+.callout.tip{border-color:var(--green);background:#eef6f1}
+.callout.meat{border-color:var(--meat);background:#fbf0ed}
+body.dark .callout.warn,body.dark .callout.tip,body.dark .callout.meat{background:var(--sand)}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+th{background:var(--maroon);color:#fff;text-align:left;padding:8px 9px;font-weight:500;font-size:.78rem}
+body.dark th{color:#171512}
+td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:nth-child(even) td{background:var(--sand)}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto;border-radius:8px;border:1px solid var(--line)}
+
+/* ---- Day cards ---- */
+.day{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+     margin-bottom:14px;overflow:hidden}
+.day.star{border-color:var(--gold);border-width:2px}
+.dayhead{display:flex;gap:14px;align-items:center;padding:14px 18px;cursor:pointer;
+         background:var(--maroon);color:#fff}
+body.dark .dayhead{color:#171512}
+.dayhead:hover{filter:brightness(1.12)}
+.daynum{font-size:1.5rem;font-weight:700;min-width:86px;line-height:1}
+.daynum .wd{font-size:.6rem;letter-spacing:.16em;opacity:.7;margin-top:3px;font-weight:600}
+.daytitle{flex:1}
+.daytitle .t{font-size:1.02rem;font-weight:600}
+.daytitle .s{font-size:.76rem;opacity:.8}
+.chev{font-size:1.1rem;transition:transform .2s}
+.day.open .chev{transform:rotate(180deg)}
+.daybody{display:none;padding:18px}
+.day.open .daybody{display:block}
+.loadtag{font-size:.68rem;padding:2px 8px;border-radius:12px;background:rgba(255,255,255,.2)}
+
+/* ---- Timeline ---- */
+.tl{list-style:none;padding:0;margin:14px 0 0;border-left:2px solid var(--line);position:relative}
+.tl li{padding:0 0 16px 20px;position:relative}
+.tl li::before{content:"";position:absolute;left:-7px;top:6px;width:12px;height:12px;
+               border-radius:50%;background:var(--gold);border:2px solid var(--card)}
+.tl li.key::before{background:var(--rust);width:14px;height:14px;left:-8px}
+.tl .time{font-weight:700;font-size:.85rem;color:var(--rust);font-variant-numeric:tabular-nums}
+.tl .what{font-weight:600;font-size:.92rem}
+.tl .desc{font-size:.87rem;color:var(--ink);opacity:.9}
+
+/* ---- Photo cards ---- */
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin:14px 0}
+.ph{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--sand);
+    display:flex;flex-direction:column}
+.ph .imgbox{aspect-ratio:4/3;background:var(--sand);display:flex;align-items:center;
+            justify-content:center;overflow:hidden;position:relative}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .35s}
+.ph .fallback{font-size:.75rem;color:var(--muted);text-align:center;padding:10px}
+.ph .meta{padding:8px 10px}
+.ph .nm{font-size:.83rem;font-weight:600;line-height:1.3}
+.ph .lk{font-size:.72rem;margin-top:3px}
+.ph .skel{position:absolute;inset:0;background:linear-gradient(90deg,var(--sand),var(--line),var(--sand));
+          background-size:200% 100%;animation:sh 1.3s infinite}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ---- Budget calculator ---- */
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.fld label{display:block;font-size:.73rem;text-transform:uppercase;letter-spacing:.06em;
+           color:var(--muted);margin-bottom:4px}
+.fld input,.fld select{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:7px;
+                       font:inherit;font-size:.9rem;background:var(--card);color:var(--ink)}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:16px}
+.stat{background:var(--sand);border-radius:9px;padding:12px 14px}
+.stat .k{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.stat .v{font-size:1.45rem;font-weight:700;color:var(--maroon);font-variant-numeric:tabular-nums}
+.stat .n{font-size:.72rem;color:var(--muted)}
+
+/* ---- Checklist ---- */
+.chk{list-style:none;padding:0;margin:0}
+.chk li{padding:5px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.chk input{margin-right:9px;transform:scale(1.15)}
+.chk li.done{opacity:.45;text-decoration:line-through}
+
+/* ---- Map SVG ---- */
+.mapbox{background:var(--sand);border-radius:var(--radius);padding:10px;border:1px solid var(--line)}
+.mapbox svg{width:100%;height:auto;display:block}
+
+footer{background:var(--maroon);color:#f0e4cd;padding:26px 0;margin-top:30px;font-size:.84rem}
+body.dark footer{background:#211e1a}
+footer a{color:var(--gold)}
+
+@media print{
+  nav,.iconbtn,.hero svg{display:none}
+  .daybody{display:block!important}
+  section{page-break-inside:avoid}
+}
+@media(max-width:640px){
+  .hero h1{font-size:2rem}
+  .daynum{min-width:60px;font-size:1.1rem}
+  .dayhead{padding:11px 13px}
+}
+</style>
+</head>
+<body>
+
+<script>
+/* ============================================================================
+   SECTION 3 — TRIP DATA
+   ****  THIS IS THE ONLY BLOCK YOU NEED TO EDIT  ****
+
+   Structure:
+     TRIP.meta      – title, subtitle, headline pills
+     TRIP.vehicle   – fuel efficiency options for the calculator
+     TRIP.prices    – fuel prices, default costs
+     TRIP.legs      – the distance ledger table
+     TRIP.days[]    – one object per day. Fields:
+          n      : label shown in the big number ("Day 3", "Return")
+          title  : headline
+          stat   : the grey sub-line (km, hours, night)
+          load   : "Light" | "Moderate" | "Heavy"
+          star   : true = highlighted as an "extra day"
+          km     : number, used by the calculator
+          alerts : [{type:'warn'|'tip'|'meat', html:'...'}]
+          tl     : [{time, what, desc, key:true?}]   ← the timeline
+          photos : ['slug', ...]   ← resolved via PHOTO_URLS / images/ / wiki
+          wd     : weekday label shown on the card ('SAT', 'SUN', ...)
+          logistics: [[label, html], ...]
+          map    : google maps directions URL
+     TRIP.food      – the non-veg map table
+     TRIP.stays     – accommodation table
+     TRIP.fuelStops – refuel points
+     TRIP.variants  – alternative routings
+     TRIP.notes     – driving notes, grouped
+     TRIP.checklist – pre-departure checklist items
+   ========================================================================== */
+/* ---------------------------------------------------------------------------
+   PHOTO_URLS  —  PASTE YOUR OWN IMAGE LINKS HERE
+   ---------------------------------------------------------------------------
+   Anything you put here is used directly in an <img> tag and ALWAYS works,
+   online or off, file:// or served. This is the reliable way to get pictures
+   into this page.
+
+   Three things you can paste:
+     "https://…/photo.jpg"        any image URL from the web
+     "images/jaisalmer-fort.jpg"  a file you saved next to this HTML
+     "photos/day6/dunes.png"      any relative path you like
+
+   Left blank = the page falls back to images/<slug>.jpg, then to Wikipedia
+   (which only works when served over http — see the note at the top).
+
+   The slugs below are every image the itinerary asks for. Fill in the ones
+   you care about; leave the rest empty.
+   ------------------------------------------------------------------------ */
+const PHOTO_URLS = {
+  "hawa-mahal":"",            "ana-sagar-lake":"",       "adhai-din-ka-jhonpra":"",
+  "pushkar-lake":"",          "brahma-temple":"",        "chittorgarh-fort":"",
+  "vijay-stambh":"",          "kirti-stambh":"",         "rana-kumbha-palace":"",
+  "lake-pichola":"",          "udaipur-city-palace":"",  "monsoon-palace":"",
+  "jagdish-temple":"",        "dilwara-temples":"",      "nakki-lake":"",
+  "mount-abu":"",             "guru-shikhar":"",         "jaisalmer-fort":"",
+  "barmer":"",                "thar-desert":"",          "patwon-ki-haveli":"",
+  "gadisar-lake":"",          "kuldhara":"",             "bada-bagh":"",
+  "junagarh-fort":"",         "karni-mata-temple":"",    "pokhran-fort":"",
+  "bikaner":"",               "mandawa":"",              "shekhawati":""
+};
+
+/* Slug → Wikipedia article title, used only by the tier-3 fallback.
+   Also supplies the caption shown under each photo. */
+const PHOTO_WIKI = {
+  "hawa-mahal":["Hawa Mahal","Hawa Mahal, Jaipur"],
+  "ana-sagar-lake":["Ana Sagar Lake","Ana Sagar Lake, Ajmer"],
+  "adhai-din-ka-jhonpra":["Adhai Din Ka Jhonpra","Adhai Din ka Jhonpra"],
+  "pushkar-lake":["Pushkar Lake","Pushkar Lake"],
+  "brahma-temple":["Brahma Temple, Pushkar","Brahma Temple, Pushkar"],
+  "chittorgarh-fort":["Chittorgarh Fort","Chittorgarh Fort"],
+  "vijay-stambh":["Vijay Stambha","Vijay Stambh"],
+  "kirti-stambh":["Kirti Stambha","Kirti Stambh"],
+  "rana-kumbha-palace":["Rana Kumbha Palace","Rana Kumbha Palace"],
+  "lake-pichola":["Lake Pichola","Lake Pichola"],
+  "udaipur-city-palace":["City Palace, Udaipur","City Palace, Udaipur"],
+  "monsoon-palace":["Monsoon Palace","Sajjangarh Monsoon Palace"],
+  "jagdish-temple":["Jagdish Temple, Udaipur","Jagdish Temple"],
+  "dilwara-temples":["Dilwara Temples","Dilwara Temples"],
+  "nakki-lake":["Nakki Lake","Nakki Lake"],
+  "mount-abu":["Mount Abu","Mount Abu"],
+  "guru-shikhar":["Guru Shikhar","Guru Shikhar"],
+  "jaisalmer-fort":["Jaisalmer Fort","Jaisalmer Fort"],
+  "barmer":["Barmer","Barmer"],
+  "thar-desert":["Thar Desert","Thar Desert"],
+  "patwon-ki-haveli":["Patwon Ki Haveli","Patwon ki Haveli"],
+  "gadisar-lake":["Gadisar Lake","Gadisar Lake"],
+  "kuldhara":["Kuldhara","Kuldhara"],
+  "bada-bagh":["Bada Bagh","Bada Bagh"],
+  "junagarh-fort":["Junagarh Fort","Junagarh Fort"],
+  "karni-mata-temple":["Karni Mata Temple","Karni Mata Temple, Deshnoke"],
+  "pokhran-fort":["Pokhran Fort","Pokhran Fort"],
+  "bikaner":["Bikaner","Bikaner"],
+  "mandawa":["Mandawa","Mandawa"],
+  "shekhawati":["Shekhawati","Shekhawati"]
+};
+
+const TRIP = {
+
+meta:{
+  title:"FORT COUNTRY",
+  kicker:"Rajasthan self-drive circuit · v3 interactive · 3 travellers",
+  sub:"Delhi → Jaipur (lunch only) → Ajmer → Pushkar → <b>Chittorgarh ×2</b> → Udaipur → Mount Abu → Barmer → <b>Jaisalmer ×2</b> → Bikaner → Delhi",
+  pills:["8 touring days + return","~2,540 km","3 travellers","Non-vegetarian focus","Maruti Victoris","2 nights Chittorgarh","2 nights Jaisalmer"]
+},
+
+/* Fuel efficiency presets. value = real-world planning kmpl, not ARAI. */
+vehicle:[
+  {id:"mildMT", label:"1.5 mild hybrid MT — ARAI 21.18", kmpl:17.5},
+  {id:"mildAT", label:"1.5 mild hybrid AT — ARAI 21.06", kmpl:17.0},
+  {id:"strong", label:"1.5 strong hybrid e-CVT — ARAI 28.65", kmpl:21.0},
+  {id:"cng",    label:"1.5 CNG bi-fuel — ARAI 27.02 km/kg", kmpl:23.0}
+],
+
+prices:{
+  petrolDelhi:102.12,      // ₹/L, 14 Sep 2026
+  petrolRajasthan:113.35,  // ₹/L, Jaipur, 12 Sep 2026
+  blended:111,             // what the calculator uses by default
+  defaults:{pax:3, nights:8, hotelPerNight:4200, foodPerPersonDay:1200,
+            tolls:2000, entriesPerPerson:2800, campPerPerson:3000, misc:4500}
+},
+
+/* Distance ledger --------------------------------------------------------- */
+legs:[
+  ["1","Delhi → Jaipur → Ajmer",415,"7h15","11h30","NH-48 throughout"],
+  ["2","Ajmer → Pushkar → Chittorgarh",210,"4h15","8h00","Nag Pahar, NH-58, NH-48"],
+  ["3","Chittorgarh local + Menal",110,"2h30","—","Fort circuit + SH-9"],
+  ["4","Chittorgarh → Udaipur",165,"4h15","—","NH-48 + Udaipur local"],
+  ["5","Udaipur → Mount Abu",195,"4h40","5h15","NH-27, NH-58, Abu ghat"],
+  ["6","Mount Abu → Barmer → Jaisalmer",480,"8h15","9h30","SH-16, NH-68, NH-11"],
+  ["7","Jaisalmer local + Kuldhara + Sam",150,"3h20","—","Sam road, Kuldhara road"],
+  ["8","Jaisalmer → Bikaner",355,"6h00","6h45","NH-11 via Pokhran, Phalodi"],
+  ["R","Bikaner → Delhi",460,"8h00","9h00","NH-11, NH-52, NH-48"]
+],
+
+/* ---------------------------------------------------------------------------
+   DAYS
+   ------------------------------------------------------------------------ */
+days:[
+
+{ n:"Day 1", wd:"SAT", title:"Delhi → Jaipur (lunch) → Ajmer", km:415, load:"Heavy",
+  stat:"415 km · 7h15 driving · NH-48 · Night: Ajmer · arrive 15:45",
+  map:"https://www.google.com/maps/dir/Delhi/Behror/Jaipur/Kishangarh/Ajmer",
+  photos:["hawa-mahal","ana-sagar-lake","adhai-din-ka-jhonpra"],
+  alerts:[
+    {type:"warn", html:"<b>Clear Gurugram before 06:30.</b> It is the single most useful thing you do all day — after 08:00 the Kherki Daula approach costs you 40 minutes you never get back."},
+    {type:"meat", html:"<b>Ajmer is the best non-veg town on the eastern half of this route.</b> <b>The Khadim's</b> (Phool Gali, opposite the Dargah) for <i>sali boti</i> — mutton in a sweet-sharp gravy under a haystack of fried potato straws — plus the Khadim's special tandoori and mandi rice; open till 03:00. <b>Mughlai Kitchens</b> (Makarwali Rd, halal, opens 14:00) for chicken malai tikka and biryani. <b>Mango Curry</b> (Kutchery Rd) has separate veg/non-veg wings and the easiest parking of the three. <b>Order tonight: sali boti and a tandoori platter.</b>"}
+  ],
+  tl:[
+    {time:"05:15", what:"Brim tank (F0), tyre check", desc:"Cold pressures including the spare. Three people plus bags — add 2–3 psi rear."},
+    {time:"05:30", what:"Depart Delhi", desc:"NH-48 / Delhi–Mumbai Expressway south.", key:true},
+    {time:"08:00", what:"Breakfast — Behror", desc:"Hotel Highway King. 24 h, huge lot, the NH-48 institution. Parathas with white butter, chaas, omelettes. Fuel top-up (F1)."},
+    {time:"10:45", what:"Arrive Jaipur (280 km)", desc:"Park at Jaleb Chowk or the City Palace lot. Two hours here, not two days."},
+    {time:"10:50", what:"Jaipur — 70 minutes, no more", desc:"Hawa Mahal from the street (photograph it, don't queue inside) → walk Johari Bazaar → Jantar Mantar ONLY if you're ahead of schedule; it's 45 min and the Samrat Yantra sundial is the one thing worth it. Skip the City Palace entirely — it needs two hours you don't have. Be back at the car by 12:00.", key:true},
+    {time:"12:05", what:"LUNCH — Laal Maas Restaurant, Bani Park", desc:"Call ahead, both to book and to ask for the authentic laal maas made without turmeric — that's how it should be, and pre-ordering saves you 20 minutes. Easy parking, quick service. Backup: Rustic — Inspired Kitchen, C Scheme.", key:true},
+    {time:"13:20", what:"Depart for Ajmer (135 km)", desc:"NH-48 south, four-lane and fast. Leaving 40 min earlier than a normal itinerary — this is the first of the buffers that get you home early on Sunday."},
+    {time:"14:35", what:"Rest stop — Kishangarh", desc:"Fuel (F2), tea. Fifteen minutes, not thirty."},
+    {time:"15:45", what:"Arrive Ajmer, check in", desc:"Park at the hotel — you walk from here."},
+    {time:"16:15", what:"Ajmer at golden hour", desc:"Ana Sagar Lake and Shah Jahan's white marble Baradari pavilions, then Adhai Din ka Jhonpra — a 12th-century mosque raised over a Sanskrit college, with seven arches and pillars carved for an entirely different religion. Extraordinary, and almost always empty.", key:true},
+    {time:"20:00", what:"DINNER — see the meat brief above", desc:""}
+  ],
+  logistics:[
+    ["Fuel","F0 Delhi (brim) · F1 Behror · F2 Kishangarh"],
+    ["Rest stops","Behror 165 · Shahpura 220 · Kishangarh 375"],
+    ["Stay","Ajmer hotels cluster around Ana Sagar and the Jaipur Road. Insist on off-street parking; avoid the Dargah Bazar lanes — you will not get the car near them."],
+    ["Parking","Jaipur: Jaleb Chowk / Ramniwas Bagh. Ajmer: Ana Sagar side only."]
+  ]},
+
+{ n:"Day 2", wd:"SUN", title:"Ajmer → Pushkar → Chittorgarh", km:210, load:"Moderate",
+  stat:"210 km · 4h15 driving · Nag Pahar, NH-58, NH-48 · Night: Chittorgarh (1 of 2)",
+  map:"https://www.google.com/maps/dir/Ajmer/Pushkar/Bhilwara/Chittorgarh",
+  photos:["pushkar-lake","brahma-temple","chittorgarh-fort"],
+  alerts:[
+    {type:"warn", html:"<b>Pushkar is a strictly vegetarian town.</b> It is one of Hinduism's most sacred sites and the municipality prohibits meat, eggs and alcohol within town limits — there is no non-veg restaurant in Pushkar, and this is not a matter of finding the right place. That is exactly why your Day 1 night is in Ajmer. Eat before you come and after you leave."},
+    {type:"meat", html:"Chittorgarh's non-veg scene is thin — it's a temple town and the fort itself is effectively vegetarian. Best bets: <b>laal maas or a tandoori platter on Fort Road</b>, or ask your hotel kitchen to do a non-veg thali — most Gandhi Nagar hotels will with a few hours' notice. <b>Arrange it at check-in.</b>"}
+  ],
+  tl:[
+    {time:"07:00", what:"Breakfast in Ajmer, check out", desc:"Eat here. Pushkar's cafes are good but you want time on the ground, not at a table."},
+    {time:"07:45", what:"Ajmer → Pushkar (15 km)", desc:"Over the Nag Pahar ghat — short, scenic, a few blind hairpins. Park at the main lot; the centre is walk-only."},
+    {time:"08:30", what:"Pushkar", desc:"Pushkar Lake and its 52 ghats at morning aarti — the reason to be here early → Brahma Temple, one of very few Brahma temples anywhere in the world → Savitri Mata Temple by ropeway, 10 min up, for the whole valley → Sadar Bazaar for leather juttis and silver.", key:true},
+    {time:"11:15", what:"Coffee before you go", desc:"Sol House Cafe by Rawai, Brahma Temple Road. Good espresso, clean, sunset terrace. Vegetarian, like everything here."},
+    {time:"12:00", what:"Depart for Chittorgarh (195 km)", desc:"Via Nasirabad → Bhilwara. Mixed two- and four-lane."},
+    {time:"13:45", what:"LUNCH — Bhilwara", desc:"Back in non-veg territory. The bypass has several clean highway restaurants doing chicken curry and tandoori. Fuel (F3) — last substantial town.", key:true},
+    {time:"16:15", what:"Arrive Chittorgarh, check in", desc:"Gandhi Nagar — modern side of town, easy parking, 5 km from the fort ramp."},
+    {time:"17:00", what:"Orientation drive up the fort", desc:"Go up now in evening light and just drive the circuit road without stopping at monuments. You get the scale of the place — 280 hectares on a 180 m plateau — and tomorrow you'll know exactly where everything is. Come down before dark.", key:true},
+    {time:"20:00", what:"DINNER", desc:"Rajasthan Restaurant on Fort Road does chicken and laal maas with parking opposite — check the bill, it has a reputation for adding items. Dine & View Rooftop at Hotel Hari Leela puts the floodlit fort wall across your table."}
+  ],
+  logistics:[
+    ["Fuel","F3 Bhilwara"],
+    ["Rest stops","Nasirabad 40 · Bhilwara 130"],
+    ["Stay","Hotel Pride of Chittor (spacious, several fort-view rooms) · Hotel Paras · Castle Bijaipur, a real 16th-c castle 40 km east with a pool and stables"],
+    ["Parking","Pushkar: main lot at the town edge, walk from there. Chittorgarh: you can drive the entire internal fort circuit — the happy exception on this trip."]
+  ]},
+
+{ n:"Day 3", wd:"MON", title:"Chittorgarh — the full day", km:110, load:"Light", star:true,
+  stat:"★ EXTRA DAY · 110 km local · 2h30 on wheels · Night: Chittorgarh (2 of 2)",
+  map:"https://www.google.com/maps/dir/Chittorgarh/Menal",
+  photos:["chittorgarh-fort","vijay-stambh","kirti-stambh","rana-kumbha-palace"],
+  alerts:[
+    {type:"tip", html:"<b>Why the second night here is worth it.</b> Chittorgarh's story — three sieges, three mass jauhars, abandoned in 1568 and never reoccupied — only lands if you have time to walk it. A half day gets you the Vijay Stambh and a photograph. A full day gets you the place. It's also the one major Rajput fort you can <b>drive around inside</b>."}
+  ],
+  tl:[
+    {time:"07:30", what:"Breakfast", desc:"Early. The fort is empty and cool before 09:00 and the light on the sandstone is best then."},
+    {time:"08:15", what:"Up the ramp — seven gates", desc:"Padal Pol, Bhairon Pol, Hanuman Pol, Ganesh Pol, Jodla Pol, Laxman Pol, Ram Pol. Hire a licensed guide at Ram Pol — here it genuinely changes the day.", key:true},
+    {time:"08:30", what:"Block 1 — the palaces", desc:"Rana Kumbha Palace, the oldest structure, with the underground cellars where Rani Padmini's jauhar is said to have taken place → Nau Lakha Bhandar treasury → Singa Chowri Temple."},
+    {time:"10:15", what:"Block 2 — the towers", desc:"Vijay Stambh, the nine-storey Tower of Victory, 1448 — you can climb the internal stair to the top. Then Samidheshwar Temple and the Mahasati cremation terrace beside it.", key:true},
+    {time:"11:30", what:"Block 3 — water and Meera", desc:"Gaumukh Kund, the spring-fed reservoir that let the fort withstand sieges → Meera Temple and Kumbha Shyam Temple, connected to the poet-saint Meerabai."},
+    {time:"12:30", what:"LUNCH inside the fort", desc:"Shri Barbarik Restaurant near Ratan Singh Palace — clean, home-style, cooked to order. Vegetarian, like almost everything inside the fort. Eat light; the meat comes tonight."},
+    {time:"13:45", what:"Block 4 — the south end", desc:"Padmini Palace and its water pavilion → Kalika Mata Temple → Kirti Stambh, the older and slimmer 12th-century Jain Tower of Fame → Ratan Singh Palace and its lake."},
+    {time:"15:30", what:"Menal Falls (optional, 90 km round)", desc:"45 km east on SH-9. A gorge with an 11th-century Shiva temple complex beside a seasonal waterfall — spectacular after monsoon, a dry cliff in April. Almost no tourists. CHECK THE SEASON before committing two hours. Alternatives: Bassi Wildlife Sanctuary (25 km, antelope, a chance at a leopard at dusk) or tea by the pool at Castle Bijaipur.", key:true},
+    {time:"18:30", what:"Sunset from the fort wall", desc:"If you skip Menal, go back up instead. The west rampart near Padmini Palace at sunset, with the plateau emptying out, is the quietest hour of the whole trip."},
+    {time:"20:00", what:"DINNER", desc:"Fort Road non-veg, or the hotel non-veg thali you arranged yesterday."}
+  ],
+  logistics:[
+    ["Fuel","None needed — local day"],
+    ["Inside the fort","~7 km internal circuit road. Drive it; walking the whole plateau is not realistic."],
+    ["Tickets","One ASI ticket covers the monument cluster. Guides wait at Ram Pol."]
+  ]},
+
+{ n:"Day 4", wd:"TUE", title:"Chittorgarh → Udaipur", km:165, load:"Light–moderate",
+  stat:"120 km + 45 local · 4h15 on wheels · NH-48 · Night: Udaipur (single night)",
+  map:"https://www.google.com/maps/dir/Chittorgarh/Udaipur",
+  photos:["lake-pichola","udaipur-city-palace","monsoon-palace","jagdish-temple"],
+  alerts:[
+    {type:"meat", html:"<b>Udaipur is the best eating day of the trip.</b> Three Rajasthani mutton preparations exist and Udaipur does all of them: <b>laal maas</b> (fiery, Mathania chillies, no turmeric), <b>safed maas</b> (white, cashew and yoghurt, mild), and <b>dungar maas</b> (smoked over charcoal and ghee). Laal maas at lunch at <b>Viraasat — The Haveli</b>, dungar maas at dinner at <b>1559 AD</b>. Don't order both on the same table unless all three of you are serious — portions are large and the laal maas is properly hot."},
+    {type:"warn", html:"<b>Parking is Udaipur's weak point.</b> The Lal Ghat and Gangaur Ghat lanes mostly have none. <b>Confirm parking in writing before you book.</b> Paid lot near Gangaur Ghat runs about ₹30/hr."},
+    {type:"tip", html:"<b>If Udaipur prices come back high</b> — and on peak weekends they will — use <b>Variant A2</b> in the Variants section: run Udaipur as a pass-through and move the freed night to Jaisalmer. That shifts a night from your least-wanted city to your most-wanted one."}
+  ],
+  tl:[
+    {time:"07:45", what:"Depart Chittorgarh", desc:"The early start buys you a full Udaipur day despite only one night."},
+    {time:"10:15", what:"Check in / drop bags", desc:"120 km on NH-48, fast four-lane through pretty Aravalli sections near Debari."},
+    {time:"11:00", what:"City Palace complex", desc:"The largest palace complex in Rajasthan. Mor Chowk's peacock mosaics, Sheesh Mahal, Zenana Mahal. The Crystal Gallery is a separate ticket and genuinely odd — a complete crystal furniture service ordered from Birmingham in 1877, never unpacked in the Maharana's lifetime.", key:true},
+    {time:"13:45", what:"LUNCH — Viraasat, The Haveli", desc:"This is the one. Desi laal maas, maas bhujma, desi chicken masala, in a green courtyard. Around ₹600–650 a plate for the mutton and worth it. Book or arrive before the rush.", key:true},
+    {time:"15:30", what:"Jagdish Temple", desc:"150 m from the palace gate. 1651, Indo-Aryan, carved elephants up the entrance stair."},
+    {time:"16:15", what:"Lake Pichola boat ride", desc:"From Rameshwar Ghat inside the palace complex. Passes Jag Mandir island. The Lake Palace only really works from the water."},
+    {time:"17:45", what:"Sajjangarh (Monsoon Palace) — sunset", desc:"9 km west inside a wildlife sanctuary. Private cars stop at the sanctuary gate and you take the forest department shuttle the last 4 km — budget 20 min. Sunset over the Aravallis and all five lakes. Best view in southern Rajasthan.", key:true},
+    {time:"20:30", what:"DINNER — 1559 AD", desc:"Near Fateh Sagar. Garden seating, live music, and the dungar maas (smoked mutton) is the standout. Or Pick & Move on City Station Road for a cheaper, busier, very good laal maas."}
+  ],
+  logistics:[
+    ["Fuel","None critical — fill tomorrow morning in town"],
+    ["Stay","Lal Ghat / Hanuman Ghat area. Triple rooms are scarce in the old city — a haveli suite is often cheaper than two rooms."],
+    ["Parking","Gangaur Ghat paid lot, ~₹30/hr. Sajjangarh: sanctuary gate, then shuttle."]
+  ]},
+
+{ n:"Day 5", wd:"WED", title:"Udaipur → Mount Abu", km:195, load:"Moderate",
+  stat:"165 km + 30 local · 4h40 on wheels · NH-27 → NH-58 → Abu ghat · Night: Mount Abu",
+  map:"https://www.google.com/maps/dir/Udaipur/Pindwara/Abu+Road/Mount+Abu",
+  photos:["dilwara-temples","nakki-lake","mount-abu","guru-shikhar"],
+  alerts:[
+    {type:"warn", html:"<b>Hard constraint.</b> The Dilwara Temples admit non-Jain visitors <b>only between 12:00 and 15:00</b>, and no photography is permitted inside. The whole day is built backwards from that window. Miss it and Mount Abu loses its reason to be on this itinerary."},
+    {type:"warn", html:"<b>Brim the tank at Abu Road (F5).</b> There is no fuel on the 27 km ghat and thin supply for the whole of tomorrow's 480 km. Non-negotiable."},
+    {type:"meat", html:"<b>Mount Abu is a Jain pilgrimage town and non-veg options are few. These two are the ones.</b><br><b>Zaika Restaurant</b> (Sani Gaon, near Arbuda Circle) — halal, and by consistent local account the best non-veg kitchen in town. <b>Chicken Toofani</b> and <b>Chicken Hara Masala</b> are what people come back for. <b>Note the split hours: 11:00–15:00 and 19:00–22:15 only.</b><br><b>Sindh A Punjab</b> (Taxi Stand Circle) — laal maas, amritsari tikka, reshmi tikka, matka biryani. Open 11:00–23:30 continuously, so it's the safer late-lunch choice. Dated room, good tikkas.<br><b>Plan: Sindh A Punjab for the late lunch, Zaika at 19:30 for dinner — order the Chicken Toofani.</b>"}
+  ],
+  tl:[
+    {time:"07:30", what:"Fuel (F4), depart Udaipur", desc:"Fill in town. Prices and pump quality both drop on the Pindwara road."},
+    {time:"10:00", what:"Rest stop — Swaroopganj", desc:"125 km done on NH-27/NH-58 through the Aravalli foothills. Tea and washrooms on the bypass."},
+    {time:"10:50", what:"Abu Road — BRIM THE TANK (F5)", desc:"See the warning above.", key:true},
+    {time:"11:00", what:"The Abu ghat, 27 km", desc:"Climb to 1,220 m. Continuous hairpins, langurs on the parapets, two or three viewpoints. Pleasant in the Victoris; second gear on the descents tomorrow."},
+    {time:"12:10", what:"DILWARA TEMPLES", desc:"3 km from town centre. Eleventh- and thirteenth-century Jain temples in white marble carved so finely the ceiling lotuses are translucent. Spend your time in Vimal Vasahi and Luna Vasahi. Leave phones, cameras and all leather in the car. Free entry.", key:true},
+    {time:"14:15", what:"LATE LUNCH — Sindh A Punjab", desc:"You'll be hungry; Dilwara takes longer than people expect. Zaika is closing at 15:00, hence this choice."},
+    {time:"15:45", what:"Check in", desc:"Carry a light jacket out of the car — it drops sharply after dark at this altitude."},
+    {time:"16:30", what:"Nakki Lake", desc:"Pedal boats, Toad Rock on the far bank, the bazaar loop. After five days of heat this is as much the point of Mount Abu as the temples are."},
+    {time:"17:45", what:"Sunset Point", desc:"Park and walk the last 400 m, or take a pushcart. Honeymoon Point is quieter with an arguably better view west over the plains.", key:true},
+    {time:"20:00", what:"DINNER — Zaika", desc:"Chicken Toofani. Kitchen closes 22:15."}
+  ],
+  logistics:[
+    ["Fuel","F4 Udaipur town · <b>F5 Abu Road — BRIM</b>"],
+    ["Rest stops","Gogunda 45 · Swaroopganj 125 · Abu Road 138"],
+    ["Stay","Radisson Resort Mount Abu (handles three most easily, proper parking, good kitchen) · Hotel Rock Regency, Pilgrim Rd (central, walkable to Nakki) · Hummingbird Resorts, Achalgarh (pool and gardens, 8 km out)"],
+    ["Optional","Guru Shikhar, 15 km — highest point in the Aravallis at 1,722 m. Better as a 05:45 sunrise run tomorrow, but tomorrow is your longest drive. Be honest about whether you'll manage it."]
+  ]},
+
+{ n:"Day 6", wd:"THU", title:"Mount Abu → Barmer → Jaisalmer", km:480, load:"Heavy",
+  stat:"THE LONG HAUL · 480 km · 8h15 pure driving, 9–10 h door to door · Night: Jaisalmer (1 of 2)",
+  map:"https://www.google.com/maps/dir/Mount+Abu/Sanchore/Barmer/Jaisalmer",
+  photos:["jaisalmer-fort","barmer","thar-desert"],
+  alerts:[
+    {type:"warn", html:"<b>This is a transit day, not a sightseeing day.</b> There is very little between Abu Road and Barmer beyond scrub, wind turbines and Bishnoi villages. Independent accounts put the run at 430–500 km and 8–9 hours via Sanchore and Barmer, with roughly 40 km of poor surface around Dhorimanna. Leave early, eat properly at Barmer, be off the highway before dark. <b>The good news:</b> because you now have two nights in Jaisalmer, arriving tired tonight costs you nothing."},
+    {type:"warn", html:"<b>BRIM AT BARMER (F6).</b> 155 km of near-empty desert highway follows. Do not start that leg below half a tank. Mobile signal is patchy between Sanchore and Barmer — download offline maps before you leave Mount Abu."},
+    {type:"meat", html:"<b>Barmer lunch.</b> <b>Zayka Restaurant</b> at Hotel Kailash International on the Jaisalmer–Radhanpur road (NH-68) — directly on your route out of town, easy parking, best-regarded kitchen in Barmer. The obvious choice. <b>Kargil Chicken Corner</b> (Sindhari Chauraha) does cheap quick biryani and tandoori but reviews on billing are mixed — confirm prices before ordering. <b>Order:</b> a tandoori platter and chicken curry with tawa roti. Keep it moderate — 155 km of desert follows immediately."}
+  ],
+  tl:[
+    {time:"05:45", what:"Guru Shikhar (optional)", desc:"Only if all three of you genuinely want it. Losing an hour today costs more than on any other day."},
+    {time:"07:00", what:"Depart Mount Abu", desc:"Descend the ghat in low gear. Cool and empty at this hour.", key:true},
+    {time:"07:45", what:"Abu Road", desc:"Top up if you didn't brim yesterday."},
+    {time:"08:00", what:"Abu Road → Sanchore (135 km)", desc:"Via Revdar and Raniwara. Decent road, light traffic, good averages."},
+    {time:"10:00", what:"Rest stop — Sanchore", desc:"Tea, washroom, fuel available. Last town before the thin stretch."},
+    {time:"10:20", what:"Sanchore → Dhorimanna → Barmer (95 km)", desc:"The rough section. 50–60 km/h averages. Livestock on the carriageway is normal."},
+    {time:"11:45", what:"BARMER — lunch and BRIM (F6)", desc:"Zayka at Hotel Kailash International. Barmer also merits 20 minutes for its ajrak block-printing and embroidery workshops if you want a souvenir with actual provenance.", key:true},
+    {time:"13:00", what:"Barmer → Jaisalmer (155 km)", desc:"NH-11. Open desert highway, very light traffic, long empty stretches."},
+    {time:"15:45", what:"Arrive Jaisalmer, check in", desc:"Two nights here — unpack properly.", key:true},
+    {time:"17:00", what:"Easy evening: the fort at dusk", desc:"No agenda. Park at Gopa Chowk, walk up into the fort and let it get dark around you. Sonar Quila is one of very few living forts left — roughly a quarter of the old city still lives inside the walls, and evening is when that's most obvious."},
+    {time:"20:00", what:"DINNER — Manwaar (Kake Da Dhaba)", desc:"Mandir Palace Road. Laal maas, bhuna chicken, handi mutton, and one of the few places in Jaisalmer that serves alcohol. Family-friendly, easy with three."}
+  ],
+  logistics:[
+    ["Fuel","Brim at Abu Road, <b>brim again at Barmer</b>. Non-negotiable both times."],
+    ["Rest stops","Revdar 55 · Sanchore 162 · Dhorimanna 215 · <b>Barmer 257</b> · Fatehgarh 340"],
+    ["Stay","Killa Bhawan (inside the fort, tiny, exceptional — confirm a triple) · WelcomHeritage Mandir Palace, Gandhi Chowk Rd (working palace, big rooms) · Rang Mahal on the Sam road (pool, easiest parking). Stay in town <i>both</i> nights and drive out to the dunes tomorrow rather than moving hotels."],
+    ["Signal","Patchy Sanchore→Barmer. Save your roadside assistance number offline."]
+  ]},
+
+{ n:"Day 7", wd:"FRI", title:"Jaisalmer — the full day", km:150, load:"Light", star:true,
+  stat:"★ EXTRA DAY · 150 km local · 3h20 on wheels · Night: Jaisalmer or Sam camp (2 of 2)",
+  map:"https://www.google.com/maps/dir/Jaisalmer/Kuldhara/Khaba+Fort/Sam+Sand+Dunes",
+  photos:["jaisalmer-fort","patwon-ki-haveli","gadisar-lake","kuldhara","bada-bagh"],
+  alerts:[
+    {type:"tip", html:"<b>This is the best day of the trip and it exists because of the re-plan.</b> Kuldhara, Khaba and Bada Bagh are what the extra night buys you — nobody on a one-night Jaisalmer schedule ever sees them."},
+    {type:"warn", html:"<b>Do not drive onto the sand at Sam.</b> That is what the jeep operators are for; the Victoris is not a dune vehicle. Park on the road. Also: never drive out to Sam on a low tank — there is no reliable pump there."},
+    {type:"meat", html:"Jaisalmer's non-veg is concentrated at <b>The Namaste Restaurant</b> (near Sunset Point) — by repeated local account the <b>best laal maas in the city</b>, plus a very good butter chicken, with a rooftop fort view — and <b>Manwaar / Kake Da Dhaba</b> for handi mutton and bhuna chicken. <b>1156AD</b> at Jawahar Niwas Palace does good seekh kababs (kitchen 12:00–16:00 only). Note that several pretty in-fort rooftops (<b>Fort Oasis</b>, for one) are <b>entirely vegetarian</b> — lovely for breakfast, wrong for dinner. <b>Since tonight's camp dinner will likely be veg, take your laal maas at lunch today or at Namaste on Day 6 evening.</b>"}
+  ],
+  tl:[
+    {time:"06:30", what:"Gadisar Lake at sunrise", desc:"Do this first, every time. A 14th-century rainwater reservoir ringed with ghats, chhatris and the carved Tilon ki Pol gateway. Empty and gold at this hour; a crush by ten. 2 km from the fort.", key:true},
+    {time:"07:45", what:"Breakfast with a fort view", desc:"Pol Haveli Rooftop near Hanuman Chauraha, The Namaste near Sunset Point, or Lake View Restaurant up on the fort itself. All open by 07:30."},
+    {time:"09:00", what:"Jaisalmer Fort, properly", desc:"Park at Gopa Chowk — vehicles are restricted inside and the lanes are barely car-width. Raj Mahal, the seven Jain temples (Chandraprabhu and Parshvanath are the two worth time), Laxminath Temple, and the full bastion walk. A guide is worth it here.", key:true},
+    {time:"11:45", what:"Patwon ki Haveli & Salim Singh ki Haveli", desc:"Patwon is five havelis built by one brocade-trading family — the most elaborate facades in Rajasthan. Salim Singh's peacock-arched upper storey is 200 m on. Nathmal ki Haveli is a third, carved by two brothers working from opposite ends and famously asymmetric."},
+    {time:"13:15", what:"LUNCH — 1156AD", desc:"Jawahar Niwas Palace. Best room in town, wide menu, good seekh kababs and butter chicken. Kitchen 12:00–16:00 only. Alternative: Jaisal Panorama Rooftop for the framed fort view."},
+    {time:"15:00", what:"Kuldhara & Khaba Fort", desc:"18 km south-west. Kuldhara is an abandoned Paliwal Brahmin village, emptied overnight in the early 1800s and never resettled — restored streets, roofless houses, a real sense of desertion. Khaba Fort 8 km further has ruins plus peacocks and a small museum.", key:true},
+    {time:"16:30", what:"Bada Bagh (en route back)", desc:"The royal cenotaph garden — rows of sandstone chhatris on a terraced hillside with wind turbines behind them. Very good in late light, ten minutes off the Sam road."},
+    {time:"17:30", what:"Drive to Sam Sand Dunes (42 km)", desc:"Straight, fast, well-surfaced. Be on the dunes by 18:00."},
+    {time:"18:00", what:"Camel safari & sunset", desc:"Camel ride or jeep dune-bash over the ridges, then sunset from a ridge top. This is the Thar, and it earns its reputation.", key:true},
+    {time:"19:45", what:"Folk evening & dinner", desc:"Kalbeliya dance, Manganiyar musicians, bonfire, thali dinner under a very good sky at Desert Heritage Camp or Desert Dream Holiday Resort."},
+    {time:"22:30", what:"Drive back to town, or stay", desc:"If driving back: 60–70 km/h. Cattle and camels cross that road at night and trucks run high beams."}
+  ],
+  logistics:[
+    ["Fuel","Top up in town before the Sam run"],
+    ["Parking","Gopa Chowk for the fort. Never drive into the fort lanes. At Sam, park on the road."],
+    ["Camp vs town","Camp = dune sunrise, but you do the 42 km back in the morning. Town = a proper bed and the fort at night. Recommended: town both nights."]
+  ]},
+
+{ n:"Day 8", wd:"SAT", title:"Jaisalmer → Bikaner", km:355, load:"Heavy",
+  stat:"330 km + 25 local · 6h00 on wheels · NH-11 via Pokhran & Phalodi · Night: Bikaner · JUNAGARH TONIGHT",
+  map:"https://www.google.com/maps/dir/Jaisalmer/Pokhran/Phalodi/Bikaner",
+  photos:["junagarh-fort","karni-mata-temple","pokhran-fort","bikaner"],
+  alerts:[
+    {type:"warn", html:"<b>This is the day that makes Sunday work.</b> Junagarh Fort has moved from the return leg to this evening, which means the return drive becomes a clean daylight run. The cost is an 08:15 departure from Jaisalmer and a disciplined 15-minute Pokhran stop. <b>Junagarh's last entry is around 16:30 — being at the gate by 15:45 is the one hard target of the day.</b> Also do your bhujia and sweet shopping tonight; there is no time tomorrow morning."},
+    {type:"meat", html:"<b>Bikaner has a real non-veg culture and this is your best chicken night.</b><br><b>Sigdi Veg & Non Veg Restaurant</b> (Jai Narayan Vyas Colony) is the pick — <b>Akbari Chicken</b>, <b>smoky Irani tikka</b>, Turkish chicken tikka, and a mutton shank <i>nalli nihari</i>. Reasonable prices, slow-ish service so order early. Opens 13:30.<br><b>Chacha Chicken Corner (Lalji)</b>, Rao Bikaji Market — a proper chicken-corner institution. Tandoori and chicken curry, cheap, quick, no atmosphere whatsoever. Mutton by weight too.<br><b>KK Chicken Corner</b>, Amarsinghpura — evenings only from 18:00, tender mutton with tawa roti.<br><b>Order at Sigdi:</b> Akbari Chicken and the smoky Irani tikka. Two starters and two mains is about right for three."},
+    {type:"tip", html:"<b>Seasonal, Nov–Feb only:</b> Khichan village, 4 km off the highway near Phalodi, hosts several thousand migratory demoiselle cranes at the morning feeding ground. Extraordinary — but it's a morning event, so you'd need to leave Jaisalmer at 06:30 to catch it."}
+  ],
+  tl:[
+    {time:"06:15", what:"Dune sunrise (if you stayed at Sam)", desc:"Worth an alarm. Then straight back to town — no lingering today."},
+    {time:"07:45", what:"Breakfast, check out, load the car", desc:"Everything packed before you sit down to eat."},
+    {time:"08:15", what:"Fuel (F7), depart for Bikaner", desc:"90 minutes earlier than a relaxed version of this day. This single change is what lets you see Junagarh tonight and drive home in daylight tomorrow.", key:true},
+    {time:"09:45", what:"Pokhran (110 km) — 15 min only", desc:"Stretch, photograph Pokhran Fort from the road, move on. The town is best known for India's 1974 and 1998 nuclear tests in the desert range nearby. Don't tour the fort — you're seeing a better one in six hours."},
+    {time:"11:20", what:"LUNCH — Phalodi (175 km), 40 min", desc:"Fuel (F8) and eat. Phalodi's highway restaurants do decent chicken. Keep it brisk.", key:true},
+    {time:"14:00", what:"Karni Mata, Deshnoke — ONLY if ahead", desc:"30 km before Bikaner. The temple of some 25,000 resident rats, considered sacred; barefoot entry. Not for everyone. Skip it unless you're through Deshnoke by 14:15 — Junagarh matters more and its last entry is ~16:30.", key:false},
+    {time:"15:15", what:"Arrive Bikaner, check in fast", desc:"Drop bags, don't unpack.", key:true},
+    {time:"15:45", what:"JUNAGARH FORT (moved from Sunday)", desc:"Built 1589 on flat ground rather than a hill and never conquered. Anup Mahal with its gold-leaf and lacquer work, Phool Mahal, Karan Mahal, and a first-world-war DH.9 biplane in the courtyard museum. Last entry is around 16:30 — be at the gate by 15:45 and you have a comfortable 75 minutes.", key:true},
+    {time:"17:15", what:"Rampuria Havelis at dusk", desc:"Old city, free, no ticket, no hours. Red-sandstone merchant mansions with extraordinary jharokha facades. The best hour in Bikaner and most visitors skip it entirely."},
+    {time:"19:00", what:"DINNER — Sigdi, then bhujia run", desc:"The last big meat night. Afterwards: old-city sweet shops for Bikaneri rasgulla, and buy bhujia to take home — this is the town that invented it. Do the shopping tonight; there is no time tomorrow.", key:true},
+    {time:"21:30", what:"Early night — 06:00 alarm", desc:"Tomorrow is a 460 km drive and you want it done in daylight."}
+  ],
+  logistics:[
+    ["Fuel","F7 Jaisalmer (before departure) · F8 Pokhran or Phalodi"],
+    ["Rest stops","Pokhran 110 · Phalodi 175 · Deshnoke 300"],
+    ["Stay","<b>The Laxmi Niwas Palace</b> — an actual Edwardian-era royal palace, enormous rooms that absorb a third bed easily, evening folk performances, best-value palace stay on this route. · Maharaja Ganga Mahal (heritage, closer to Junagarh, cheaper) · Hotel Bhairon Vilas (beside the fort, characterful, dated)"]
+  ]},
+
+{ n:"Return", wd:"SUN", title:"Bikaner → Delhi", km:460, load:"Heavy",
+  stat:"460 km · 8h00 driving · NH-11 → NH-52 → NH-48 · DELHI BY ~14:30, DAYLIGHT",
+  map:"https://www.google.com/maps/dir/Bikaner/Ratangarh/Mandawa/Sikar/Behror/Delhi",
+  photos:["junagarh-fort","mandawa","shekhawati"],
+  alerts:[
+    {type:"tip", html:"<b>You are home by mid-afternoon, with time to repack for your onward travel.</b> This used to be a 12:30 departure and a 21:00 arrival. Moving Junagarh Fort to Saturday evening freed the whole morning, so Sunday is now a straight 06:30 run with one real stop. <b>Nothing is cut that you haven't already seen.</b>"},
+    {type:"warn", html:"<b>Protect the 06:30 departure.</b> Settle the hotel bill on Saturday night, load the car on Saturday night, and do your bhujia shopping on Saturday night. A 07:30 start instead of 06:30 puts you into Delhi's Sunday-evening ring road traffic and costs you closer to two hours, not one."},
+    {type:"tip", html:"<b>Mandawa is the one optional stop, and it's worth it.</b> 20 km off the route, the finest painted-haveli town in Rajasthan — frescoed merchant houses, almost no crowds, a very good last taste of the state. It costs 75 minutes and you still reach Delhi by 15:45. Drop it if you want to be home by 14:30 sharp."},
+    {type:"tip", html:"<b>Fuel arbitrage worth ~₹480.</b> Rajasthan levies the highest petrol VAT in India — roughly ₹11/L more than Delhi. At Sikar take only enough to reach home, then fill in Delhi."}
+  ],
+  tl:[
+    {time:"06:00", what:"Alarm. Car already loaded.", desc:"Bill settled and bags in the boot last night. You should be pulling out of the gate 30 minutes after the alarm."},
+    {time:"06:30", what:"DEPART BIKANER — the one time that matters", desc:"NH-11 east. Empty roads at this hour and you cover the first 110 km fast.", key:true},
+    {time:"08:15", what:"Breakfast — Ratangarh (110 km)", desc:"35 minutes. Proper meal, washrooms, then straight back on the road."},
+    {time:"10:15", what:"Mandawa (optional, +75 min)", desc:"20 km off the route into the Shekhawati painted-haveli belt. Frescoed merchant houses, whole walls of them, almost no crowds. Skip it if you want the earliest possible arrival — it's the only thing standing between you and a 14:30 finish."},
+    {time:"12:00", what:"Sikar — final fuel (F9)", desc:"Minimum fill only. Rajasthan petrol runs ~₹11/L above Delhi, so take just enough to get home and fill there.", key:true},
+    {time:"12:45", what:"Behror — lunch, 40 min", desc:"Back at Highway King, closing the loop where you opened it. Last stop; eat properly and drive the final stretch fresh."},
+    {time:"14:30", what:"ARRIVE DELHI — circuit closed", desc:"~2,540 km in nine days. Two UNESCO forts, one living fort, a hill station and a desert. Home in daylight with the afternoon and evening free for your onward travel.", key:true}
+  ],
+  logistics:[
+    ["Fuel","F9 Sikar — minimum fill, then top up in Delhi"],
+    ["Rest stops","Ratangarh 110 · Fatehpur 190 · Sikar 245 · Behror 340"],
+    ["Arrival","<b>~14:30 without Mandawa, ~15:45 with it.</b> Both are comfortably in daylight."],
+    ["Done Saturday night","Hotel bill settled · car loaded · bhujia and sweets bought · Junagarh Fort already seen"]
+  ]}
+],
+
+/* Non-veg map. [day, city, where, what, blocked?] --------------------------- */
+food:[
+  ["1","Jaipur (lunch)","Laal Maas Restaurant, Bani Park","Authentic laal maas — call ahead, ask for it without turmeric",false],
+  ["1","Ajmer (dinner)","The Khadim's · Mughlai Kitchens · Mango Curry","<b>Sali boti</b>, Khadim's special tandoori, mandi rice, chicken malai tikka",false],
+  ["2","Pushkar","NONE — strictly vegetarian town","No meat, eggs or alcohol anywhere. Eat in Ajmer before, Bhilwara after.",true],
+  ["2","Bhilwara (lunch)","Highway restaurants on the bypass","Chicken curry, tandoori, tawa roti",false],
+  ["2–3","Chittorgarh","Rajasthan Restaurant, Fort Rd · hotel kitchen on request","Laal maas, tandoori chicken. Thin scene — arrange at check-in.",false],
+  ["3","Chittorgarh Fort","Shri Barbarik — vegetarian","In-fort dining is effectively all veg. Eat light at lunch.",true],
+  ["4","Udaipur","<b>Viraasat — The Haveli</b> (lunch) · <b>1559 AD</b> (dinner) · Pick & Move","<b>Desi laal maas</b>, <b>maas bhujma</b>, <b>dungar maas</b> (smoked), desi chicken masala",false],
+  ["5","Mount Abu","<b>Zaika</b> (11–15, 19–22:15) · Sindh A Punjab (11–23:30)","<b>Chicken Toofani</b>, Chicken Hara Masala, amritsari tikka, matka biryani",false],
+  ["6","Barmer (lunch)","<b>Zayka</b> at Hotel Kailash Intl, NH-68 · Kargil Chicken Corner","Tandoori platter, chicken curry, biryani",false],
+  ["6–7","Jaisalmer","<b>The Namaste</b> · <b>Manwaar (Kake Da Dhaba)</b> · 1156AD · Lake View","<b>Laal maas at Namaste</b>, handi mutton and bhuna chicken at Manwaar, seekh kababs at 1156AD",false],
+  ["7","Sam desert camp","Camp dinners usually vegetarian","Take your meat at lunch that day",true],
+  ["8","Bikaner","<b>Sigdi</b> · Chacha Chicken Corner · KK Chicken Corner","<b>Akbari Chicken</b>, smoky Irani tikka, Turkish tikka, nalli nihari",false]
+],
+
+stays:[
+  ["1","Ajmer","Ana Sagar / Jaipur Road hotels","Insist on off-street parking. Avoid Dargah Bazar lanes."],
+  ["2, 3","Chittorgarh","Hotel Pride of Chittor · Hotel Paras · Castle Bijaipur","Pride of Chittor has spacious rooms and fort views; good for an extra bed."],
+  ["4","Udaipur","Lal Ghat / Hanuman Ghat area","<b>Confirm parking in writing before booking.</b> A haveli suite is often cheaper than two rooms."],
+  ["5","Mount Abu","Radisson Resort · Rock Regency · Hummingbird","Radisson handles three most easily and has parking."],
+  ["6, 7","Jaisalmer","Mandir Palace · Rang Mahal · Killa Bhawan","Killa Bhawan is tiny — confirm a triple. Rang Mahal is easiest for parking."],
+  ["8","Bikaner","<b>Laxmi Niwas Palace</b> · Maharaja Ganga Mahal","Laxmi Niwas rooms are enormous; an extra bed disappears in them."]
+],
+
+fuelStops:[
+  ["F0","Delhi, pre-departure",0,"Cheapest fuel of the trip — brim it",true],
+  ["F1","Behror, NH-48",165,"Breakfast stop; top up",false],
+  ["F2","Kishangarh",375,"Before the Ajmer stretch",false],
+  ["F3","Bhilwara",530,"Last big town before Chittorgarh",false],
+  ["F4","Udaipur town",860,"Fill in town, not on the Pindwara road",false],
+  ["F5","Abu Road — BRIM",1000,"No fuel on the ghat; thin supply beyond",true],
+  ["F6","Barmer — BRIM",1250,"155 km of empty desert follows",true],
+  ["F7","Jaisalmer, before Day 8",1600,"Sam has no reliable pump",false],
+  ["F8","Pokhran or Phalodi",1730,"Mid-leg insurance",false],
+  ["F9","Sikar — minimum fill",2390,"Just enough to reach Delhi; fill at home",false]
+],
+
+variants:[
+  {name:"A1 — Udaipur as a day trip", km:2750,
+   how:"Third night in Chittorgarh. Day 4 runs Chittorgarh → Udaipur (07:00, arrive 09:15) → City Palace, Pichola, lunch at Viraasat → depart 16:30 → back in Chittorgarh 18:45. Day 5 becomes Chittorgarh → Mount Abu, 285 km via Nathdwara.",
+   tradeoff:"+240 km on Day 4 and a 285 km Day 5. Saves a night's accommodation, gains a third Chittorgarh evening."},
+  {name:"A2 — Udaipur as a pass-through ★ recommended fallback", km:2545,
+   how:"Day 4 runs Chittorgarh 07:00 → Udaipur 09:15 → City Palace + lunch + Pichola until 15:00 → Mount Abu by 19:00. The freed night goes to Jaisalmer as a third night, or to Barmer to split the long haul.",
+   tradeoff:"No Sajjangarh sunset, no Udaipur evening. But it converts a costly night into an extra Jaisalmer day — which fits your priorities better than anything else here."},
+  {name:"B — Split the long haul", km:2590,
+   how:"Add a Barmer night. Day 6 becomes Mount Abu → Barmer (260 km, arrive mid-afternoon — ajrak block-printing workshops and the Kiradu temple ruins 35 km out, an 11th-century complex almost nobody visits). Day 7 becomes Barmer → Jaisalmer (155 km) arriving 11:00.",
+   tradeoff:"Costs one extra day overall. Removes the hardest driving day entirely."},
+  {name:"C — Jodhpur instead of Mount Abu", km:2520,
+   how:"Udaipur → Ranakpur (1,444 carved marble pillars, no two alike) → Jodhpur (Mehrangarh, the best-preserved fort in Rajasthan, and the blue city) → Jaisalmer. Legs become 165, 165 and 285 km.",
+   tradeoff:"No 480 km day anywhere, and the non-veg situation improves a lot — Jodhpur is a serious meat-eating city. You lose Dilwara and the hill-station night. On sightseeing density and road quality this is objectively the better circuit; it's only wrong if Mount Abu specifically matters to you."}
+],
+
+notes:[
+ {h:"Road and traffic", items:[
+  "<b>No night driving outside cities.</b> Unlit tractor trolleys, camel carts, livestock and trucks with dead tail lights are all normal. Every arrival in this plan is timed before sunset for that reason.",
+  "Rural speed discipline: 60–70 km/h on two-lane roads, not 90. Free-roaming cattle everywhere; blackbuck and chinkara in the west.",
+  "Riskiest overtaking is on the <b>Pushkar–Bhilwara</b> and <b>Sanchore–Barmer</b> stretches. Wait for real visibility.",
+  "Ghats: Nag Pahar, the Abu ghat, Sajjangarh's approach. Engine-brake down; don't ride the friction brakes.",
+  "FASTag with a healthy balance. Most of the toll is on the two Delhi legs."]},
+ {h:"Parking, city by city", items:[
+  "<b>Jaipur:</b> Jaleb Chowk or Ramniwas Bagh. You're only there two hours.",
+  "<b>Ajmer:</b> Ana Sagar side. Don't take the car toward the Dargah.",
+  "<b>Pushkar:</b> main lot at the town edge; everything is walk-only.",
+  "<b>Chittorgarh:</b> the happy exception — drive the entire internal fort circuit.",
+  "<b>Udaipur:</b> the weakest point of the trip. Gangaur Ghat paid lot, ~₹30/hr.",
+  "<b>Jaisalmer:</b> Gopa Chowk below the fort. Never drive into the fort lanes.",
+  "<b>Sam Dunes:</b> park on the road; the sand is for the jeeps."]},
+ {h:"Car prep, with three aboard", items:[
+  "Tyre pressures cold including the spare, <b>+2–3 psi rear</b> for the extra passenger and luggage.",
+  "Coolant, oil, washer reservoir topped — refill washer fluid twice on the trip. Desert dust on the windscreen at sunset is genuinely dangerous.",
+  "Roadside assistance number saved offline. Signal is patchy between Sanchore and Barmer.",
+  "The Victoris's 210 mm ground clearance is ample for everything here, including the Dhorimanna section and the Sam approach road.",
+  "Boot space is 439 L. Three people's luggage fits — pack soft bags, not hard cases, and keep the rear view clear."]},
+ {h:"Season", items:[
+  "<b>October–March</b> is the window. Days 22–28°C; desert nights near freezing in Dec–Jan.",
+  "<b>April–June</b> makes Day 6 punishing — western Rajasthan passes 45°C and AC load costs 2–3 kmpl.",
+  "<b>July–September</b> is green in the south and Menal Falls actually flows, but the Abu ghat gets slow in heavy rain.",
+  "Avoid <b>Pushkar Camel Fair</b> week (usually November) unless you're going for it — Ajmer and Pushkar rates triple."]}
+],
+
+checklist:[
+ "FASTag topped up","Offline Google Maps — all of Rajasthan downloaded","RC, insurance, PUC, licences (physical + phone photos)",
+ "Roadside assistance number saved offline","Tyre pressures checked cold, +2–3 psi rear","Spare tyre pressure checked",
+ "Coolant, engine oil, washer fluid topped","6 L drinking water for three","Cash — dunes, shrines, parking attendants don't take UPI",
+ "Sunglasses, sunscreen, hats ×3","One warm layer each (Mount Abu, desert nights)","Dilwara: nothing leather, no cameras — plan for it",
+ "Zaika (Mount Abu) called ahead","Viraasat (Udaipur) booked","Sam desert camp confirmed for three",
+ "Udaipur hotel parking confirmed in writing","Killa Bhawan / Jaisalmer triple room confirmed","Car serviced before departure"
+]
+
+};
+</script>
+
+<!-- ============================================================================
+     SECTION 4 — PAGE SHELL
+     Static scaffolding. Each <div id="..."> is filled by a renderer in SECTION 5.
+     ========================================================================== -->
+
+<header class="hero">
+  <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <g fill="#fff">
+      <path d="M20 200 V120 h22 v-12 h12 v12 h24 V88 h22 V74 h12 v14 h24 v32 h24 v-12 h12 v12 h24 v80 Z"/>
+      <path d="M200 200 V104 h26 V76 h14 V58 h12 v18 h14 v28 h28 v-14 h14 v14 h26 v96 Z"/>
+      <path d="M340 200 V128 h24 v-14 h12 v14 h26 V96 h22 V82 h12 v14 h24 v32 h26 v72 Z"/>
+      <path d="M500 200 V136 h24 v-16 h14 v16 h28 v-22 h22 v86 Z"/>
+    </g>
+  </svg>
+  <div class="wrap">
+    <div class="kicker" id="hKicker"></div>
+    <h1 id="hTitle"></h1>
+    <div class="sub" id="hSub"></div>
+    <div class="pills" id="hPills"></div>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap" id="navbar">
+    <!-- day buttons injected here -->
+    <div class="navspacer"></div>
+    <button class="iconbtn" id="btnExpand" title="Expand or collapse all days">⇕ All</button>
+    <button class="iconbtn" id="btnTheme" title="Light / dark">◐</button>
+    <button class="iconbtn" id="btnPrint" title="Print or save as PDF">⎙</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ---- Overview: map + ledger ---- -->
+  <section id="overview">
+    <h2>Route & Distance Ledger</h2>
+    <div class="grid g2">
+      <div class="mapbox" id="routeMap"></div>
+      <div class="card">
+        <h3 style="margin-top:0">The shape of the trip</h3>
+        <p>A closed loop from Delhi, anticlockwise through eastern, southern and western Rajasthan, closing back through the north. Seven overnight bases, no road driven twice except the 27 km Mount Abu ghat.</p>
+        <p>The rhythm alternates deliberately: <b>two heavy days, a light day, two moderate days, the heaviest day, a light day, two heavy days home.</b> Days 3 and 7 — Chittorgarh and Jaisalmer — are your rest days and also the two best days of the trip.</p>
+        <div class="callout warn"><b>Timed for a Saturday start and a Sunday-afternoon finish.</b>
+          Day 1 leaves Delhi 05:30 Saturday; the return leg reaches Delhi <b>~14:30 the following Sunday</b>, in daylight.
+          Three things make that work: Jaipur is cut to 70 minutes, <b>Junagarh Fort moves from Sunday morning to Saturday evening</b>,
+          and Saturday's Jaisalmer departure is pulled forward to 08:15. Nothing is lost — Junagarh is still seen.</div>
+        <div class="callout tip"><b>Jaipur and Udaipur are deliberately minimised.</b> Jaipur is a two-hour lunch stop. Udaipur is a single night and droppable. The days they freed went to Chittorgarh and Jaisalmer.</div>
+        <p><a id="fullMapLink" href="#" target="_blank" rel="noopener">▸ Open the full circuit in Google Maps</a></p>
+      </div>
+    </div>
+    <div class="tablewrap" style="margin-top:14px"><table id="ledger"></table></div>
+  </section>
+
+  <!-- ---- Budget calculator ---- -->
+  <section id="budget">
+    <h2>Live Budget Calculator</h2>
+    <div class="card">
+      <p class="small">Change any field and everything recalculates. Defaults are set for three travellers at mid-range comfort. Fuel prices are as of 14 Sep 2026 — Delhi ₹102.12/L, Rajasthan ~₹113.35/L.</p>
+      <div class="calc" id="calcFields"></div>
+      <div class="out" id="calcOut"></div>
+      <div class="callout tip" style="margin-top:16px"><b>Three is the efficient number for this trip.</b> Fuel and tolls divide by three instead of two, and most Indian hotels price a third person as an extra bed at ₹800–1,200 rather than a second room. Per-head cost drops roughly 22% against the same trip for two.</div>
+    </div>
+  </section>
+
+  <!-- ---- Days ---- -->
+  <section id="itinerary">
+    <h2>Day by Day</h2>
+    <div id="days"></div>
+  </section>
+
+  <!-- ---- Food ---- -->
+  <section id="food">
+    <h2>The Non-Vegetarian Map</h2>
+    <p>What to order, where, and where you simply cannot. Rajasthani meat cooking is mutton-led; chicken is common but the state dishes are goat.</p>
+    <div class="tablewrap"><table id="foodTable"></table></div>
+    <div class="callout tip"><b>A note on heat.</b> Authentic laal maas is built on Mathania red chillies and no turmeric, and it is properly hot — not restaurant-hot, actually hot. If one of the three of you is heat-sensitive, order <b>safed maas</b> (white, cashew-and-yoghurt, mild) alongside it rather than asking them to tone the laal maas down, which ruins it.</div>
+  </section>
+
+  <!-- ---- Stays & fuel ---- -->
+  <section id="logistics">
+    <h2>Stays & Fuel</h2>
+    <div class="grid g2">
+      <div><h3>Where you sleep</h3><div class="tablewrap"><table id="stayTable"></table></div></div>
+      <div><h3>Refuel points</h3><div class="tablewrap"><table id="fuelTable"></table></div></div>
+    </div>
+  </section>
+
+  <!-- ---- Variants ---- -->
+  <section id="variants">
+    <h2>Route Variants</h2>
+    <div class="grid g2" id="variantCards"></div>
+  </section>
+
+  <!-- ---- Notes + checklist ---- -->
+  <section id="notes">
+    <h2>Driving Notes & Pre-Departure Checklist</h2>
+    <div class="grid g2">
+      <div id="noteBlocks"></div>
+      <div class="card">
+        <h3 style="margin-top:0">Checklist</h3>
+        <p class="small">Ticks are saved in this browser.</p>
+        <ul class="chk" id="checklist"></ul>
+        <button class="iconbtn" id="btnResetChk" style="margin-top:10px">Reset checklist</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---- Sources ---- -->
+  <section id="sources">
+    <h2>Sources</h2>
+    <div class="card">
+      <ul style="margin:0;padding-left:18px;font-size:.88rem">
+        <li><b>Vehicle</b> — Maruti Suzuki Victoris specs via CarWale, CarDekho, ZigWheels, 91Wheels: 45 L tank; ARAI 21.18 kmpl (petrol MT), 21.06 (petrol AT), 28.65 (strong hybrid), 27.02 km/kg (CNG). CarWale real-world testing returned 20.24 kmpl highway on the hybrid.</li>
+        <li><b>Fuel prices</b> — New Delhi ₹102.12/L and Jaipur ₹113.35/L, published 12–14 Sep 2026. Rajasthan carries the highest state VAT on petrol in India.</li>
+        <li><b>Distances</b> — Google Maps road figures per leg. The Mount Abu–Jaisalmer leg was cross-checked against independent traveller accounts reporting 430–500 km and 8–9 h via Sanchore and Barmer, with ~40 km of poor surface.</li>
+        <li><b>Restaurants, hotels, opening hours</b> — Google Places data retrieved September 2026, filtered for non-vegetarian kitchens.</li>
+        <li><b>Photographs</b> — fetched live from Wikipedia / Wikimedia Commons via the Wikipedia REST API. Each image links back to its source article.</li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <b>Fort Country</b> — Rajasthan self-drive circuit · 3 travellers · Maruti Victoris · built 14 September 2026.<br>
+    Distances, hours, prices and road conditions change. Re-check each leg in Google Maps the morning you drive it.
+    Call ahead for <b>Zaika</b> (Mount Abu), <b>Viraasat</b> (Udaipur), and any <b>Sam desert camp</b>.<br>
+    <span style="opacity:.7">To edit this page, open it in any text editor and change the <code>TRIP</code> object near the top — everything renders from there.</span>
+  </div>
+</footer>
+
+<script>
+/* ============================================================================
+   SECTION 5 — RENDERERS
+   Each function takes data from TRIP and writes it into the shell above.
+   ========================================================================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s);
+
+/* ---- Hero ---- */
+function renderHero(){
+  $("#hKicker").textContent = TRIP.meta.kicker;
+  $("#hTitle").textContent  = TRIP.meta.title;
+  $("#hSub").innerHTML      = TRIP.meta.sub;
+  $("#hPills").innerHTML    = TRIP.meta.pills.map(p=>`<span class="pill">${p}</span>`).join("");
+}
+
+/* ---- Route map (inline SVG, node coords are geographically proportional) ---- */
+function renderMap(){
+  // [label, x, y, sizeClass]  — size: 2 = two nights, 1 = one night, 0 = pass-through
+  const nodes = [
+    ["DELHI",760,120,2],["Jaipur (lunch)",620,290,0],["Ajmer / Pushkar",500,335,1],
+    ["Chittorgarh ×2",503,492,2],["Udaipur ×1",408,522,1],["Mount Abu",311,521,1],
+    ["Barmer",179,407,0],["Jaisalmer ×2",131,288,2],["Bikaner",372,179,1]
+  ];
+  const path = "760,120 620,290 500,335 503,492 408,522 311,521 179,407 131,288 372,179 760,120";
+  const dist = [["280",648,200],["135",548,316],["195",540,420],["120",428,516],
+                ["165",330,548],["230",196,345],["155",92,348],["330",218,222]];
+  $("#routeMap").innerHTML = `
+  <svg viewBox="0 0 800 580" xmlns="http://www.w3.org/2000/svg">
+    <polyline points="${path}" fill="none" stroke="var(--gold)" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="372,179 760,120" fill="none" stroke="var(--warn)" stroke-width="4" stroke-dasharray="9,6"/>
+    ${nodes.map(([l,x,y,s])=>{
+      const r = s===2?11:s===1?7:5;
+      const fill = s===2?"var(--maroon)":s===1?"var(--rust)":"#a98352";
+      const anchor = x>600?"end":"start";
+      const dx = x>600?-18:18;
+      return `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>
+              <text x="${x+dx}" y="${y+5}" text-anchor="${anchor}" font-size="16"
+                    font-family="inherit" fill="currentColor"
+                    font-weight="${s===2?700:400}" opacity="${s===0?.6:1}">${l}</text>`;
+    }).join("")}
+    ${dist.map(([t,x,y])=>`<text x="${x}" y="${y}" font-size="13" fill="var(--muted)">${t} km</text>`).join("")}
+    <text x="540" y="140" font-size="13" fill="var(--warn)">460 km — return leg</text>
+    <text x="20" y="572" font-size="12" fill="var(--muted)">Large nodes = 2 nights · faded = pass-through · schematic, geographically proportional</text>
+  </svg>`;
+  $("#fullMapLink").href = "https://www.google.com/maps/dir/Delhi/Jaipur/Ajmer/Pushkar/Chittorgarh/Udaipur/Mount+Abu/Barmer/Jaisalmer/Bikaner/Delhi";
+}
+
+/* ---- Distance ledger ---- */
+function renderLedger(){
+  const tot = TRIP.legs.reduce((a,l)=>a+l[2],0);
+  $("#ledger").innerHTML = `
+    <thead><tr><th>Day</th><th>Leg</th><th class="num">km</th><th class="num">Drive time</th>
+    <th class="num">Door to door</th><th>Highways</th></tr></thead>
+    <tbody>${TRIP.legs.map(l=>`<tr><td><b>${l[0]}</b></td><td>${l[1]}</td><td class="num">${l[2]}</td>
+      <td class="num">${l[3]}</td><td class="num">${l[4]}</td><td>${l[5]}</td></tr>`).join("")}
+      <tr style="background:var(--maroon)"><td colspan="2" style="color:#fff"><b>TOTAL</b></td>
+      <td class="num" style="color:#fff"><b>~${tot.toLocaleString("en-IN")}</b></td>
+      <td class="num" style="color:#fff"><b>~48h30</b></td><td class="num" style="color:#fff"><b>~54h</b></td><td></td></tr>
+    </tbody>`;
+}
+
+/* ---- Day cards ---- */
+function renderDays(){
+  $("#days").innerHTML = TRIP.days.map((d,i)=>`
+    <article class="day${d.star?" star":""}" id="day${i}">
+      <div class="dayhead" data-toggle="${i}">
+        <div class="daynum">${d.n}${d.wd?`<div class="wd">${d.wd}</div>`:""}</div>
+        <div class="daytitle">
+          <div class="t">${d.title}</div>
+          <div class="s">${d.stat}</div>
+        </div>
+        <span class="loadtag">${d.load}</span>
+        <span class="chev">⌄</span>
+      </div>
+      <div class="daybody">
+        ${(d.alerts||[]).map(a=>`<div class="callout ${a.type}">${a.html}</div>`).join("")}
+        <div class="photos" data-photos='${JSON.stringify(d.photos||[])}'></div>
+        <h4>Timetable</h4>
+        <ul class="tl">${d.tl.map(t=>`
+          <li class="${t.key?"key":""}">
+            <span class="time">${t.time}</span> &nbsp;<span class="what">${t.what}</span>
+            ${t.desc?`<div class="desc">${t.desc}</div>`:""}
+          </li>`).join("")}
+        </ul>
+        <h4>Logistics</h4>
+        <div class="tablewrap"><table><tbody>
+          ${(d.logistics||[]).map(([k,v])=>`<tr><td style="width:120px"><b>${k}</b></td><td>${v}</td></tr>`).join("")}
+        </tbody></table></div>
+        ${d.map?`<p style="margin-top:12px"><a href="${d.map}" target="_blank" rel="noopener">▸ Open this leg in Google Maps</a></p>`:""}
+      </div>
+    </article>`).join("");
+}
+
+/* ---- Food / stays / fuel tables ---- */
+function renderTables(){
+  $("#foodTable").innerHTML = `
+    <thead><tr><th>Day</th><th>City</th><th>Where</th><th>What to order</th></tr></thead>
+    <tbody>${TRIP.food.map(f=>`<tr${f[4]?' style="background:#fbf0ed"':''}>
+      <td><b>${f[0]}</b></td><td>${f[1]}</td><td>${f[2]}</td><td>${f[3]}</td></tr>`).join("")}</tbody>`;
+
+  $("#stayTable").innerHTML = `
+    <thead><tr><th>Night</th><th>City</th><th>Pick</th><th>Notes for three</th></tr></thead>
+    <tbody>${TRIP.stays.map(s=>`<tr><td><b>${s[0]}</b></td><td>${s[1]}</td><td>${s[2]}</td><td>${s[3]}</td></tr>`).join("")}</tbody>`;
+
+  $("#fuelTable").innerHTML = `
+    <thead><tr><th>#</th><th>Where</th><th class="num">Trip km</th><th>Why</th></tr></thead>
+    <tbody>${TRIP.fuelStops.map(f=>`<tr><td><b>${f[0]}</b></td>
+      <td>${f[4]?`<b>${f[1]}</b>`:f[1]}</td><td class="num">${f[2]}</td>
+      <td>${f[4]?`<b>${f[3]}</b>`:f[3]}</td></tr>`).join("")}</tbody>`;
+}
+
+/* ---- Variants ---- */
+function renderVariants(){
+  $("#variantCards").innerHTML = TRIP.variants.map(v=>`
+    <div class="card">
+      <h3 style="margin-top:0">${v.name}</h3>
+      <p class="small"><b>${v.km.toLocaleString("en-IN")} km total</b></p>
+      <p>${v.how}</p>
+      <div class="callout"><b>Trade-off:</b> ${v.tradeoff}</div>
+    </div>`).join("");
+}
+
+/* ---- Notes ---- */
+function renderNotes(){
+  $("#noteBlocks").innerHTML = TRIP.notes.map(n=>`
+    <div class="card"><h3 style="margin-top:0">${n.h}</h3>
+      <ul style="margin:0;padding-left:18px;font-size:.9rem">${n.items.map(i=>`<li>${i}</li>`).join("")}</ul>
+    </div>`).join("");
+}
+
+/* ============================================================================
+   SECTION 6 — BUDGET ENGINE
+   Pure function: read the inputs, write the stat cards.
+   To add a cost line, add a field here AND a line in compute().
+   ========================================================================== */
+const FIELDS = [
+  {id:"pax",   label:"Travellers",            type:"number", val:()=>TRIP.prices.defaults.pax,  min:1},
+  {id:"veh",   label:"Vehicle variant",       type:"select"},
+  {id:"kmpl",  label:"Real-world kmpl",       type:"number", val:()=>17.5, step:0.5},
+  {id:"fuel",  label:"Petrol ₹/L (blended)",  type:"number", val:()=>TRIP.prices.blended},
+  {id:"km",    label:"Total trip km",         type:"number", val:()=>TRIP.legs.reduce((a,l)=>a+l[2],0)},
+  {id:"hotel", label:"Hotel ₹/night (room)",  type:"number", val:()=>TRIP.prices.defaults.hotelPerNight, step:250},
+  {id:"nights",label:"Nights",                type:"number", val:()=>TRIP.prices.defaults.nights},
+  {id:"food",  label:"Food ₹/person/day",     type:"number", val:()=>TRIP.prices.defaults.foodPerPersonDay, step:100},
+  {id:"tolls", label:"Tolls & parking ₹",     type:"number", val:()=>TRIP.prices.defaults.tolls, step:100},
+  {id:"entry", label:"Entries ₹/person",      type:"number", val:()=>TRIP.prices.defaults.entriesPerPerson, step:100},
+  {id:"camp",  label:"Desert camp ₹/person",  type:"number", val:()=>TRIP.prices.defaults.campPerPerson, step:250},
+  {id:"misc",  label:"Guides, tips, misc ₹",  type:"number", val:()=>TRIP.prices.defaults.misc, step:250}
+];
+
+function renderCalc(){
+  $("#calcFields").innerHTML = FIELDS.map(f=>{
+    if(f.type==="select"){
+      return `<div class="fld"><label for="f_veh">${f.label}</label>
+        <select id="f_veh">${TRIP.vehicle.map(v=>`<option value="${v.kmpl}">${v.label}</option>`).join("")}</select></div>`;
+    }
+    return `<div class="fld"><label for="f_${f.id}">${f.label}</label>
+      <input id="f_${f.id}" type="number" value="${f.val()}" ${f.min!=null?`min="${f.min}"`:""} ${f.step?`step="${f.step}"`:""}></div>`;
+  }).join("");
+
+  // selecting a vehicle preset pushes its kmpl into the kmpl field
+  $("#f_veh").addEventListener("change", e=>{ $("#f_kmpl").value = e.target.value; compute(); });
+  $("#calcFields").addEventListener("input", compute);
+  compute();
+}
+
+function compute(){
+  const g = id => parseFloat($("#f_"+id).value) || 0;
+  const pax = Math.max(1, g("pax"));
+  const litres = g("km") / (g("kmpl") || 1);
+  const fuel   = litres * g("fuel");
+  const stay   = g("hotel") * g("nights");
+  const food   = g("food") * pax * (g("nights") + 1);   // nights + 1 = travel days
+  const entry  = g("entry") * pax;
+  const camp   = g("camp")  * pax;
+  const total  = fuel + stay + food + entry + camp + g("tolls") + g("misc");
+
+  const R = n => "₹" + Math.round(n).toLocaleString("en-IN");
+  const stats = [
+    ["Total trip cost", R(total), `${pax} travellers, ${g("nights")} nights`],
+    ["Per person",      R(total/pax), "all-in"],
+    ["Petrol",          R(fuel), `${litres.toFixed(0)} L · ${(litres/45).toFixed(1)} full tanks`],
+    ["Fuel per person", R(fuel/pax), "the big win of travelling three"],
+    ["Stays",           R(stay), `${R(g("hotel"))}/night`],
+    ["Food",            R(food), `${R(g("food"))}/person/day`],
+    ["Cost per km",     "₹" + (total/g("km")).toFixed(1), "all-in, whole car"]
+  ];
+  $("#calcOut").innerHTML = stats.map(([k,v,n])=>
+    `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`).join("");
+}
+
+/* ============================================================================
+   SECTION 7 — PHOTOS
+
+   Three tiers, tried in order, per image. The first that loads wins.
+
+     TIER 1  PHOTO_URLS[slug]      — a URL or path you pasted in SECTION 3.
+                                     Plain <img src>. Always works.
+     TIER 2  images/<slug>.jpg     — a file sitting next to this HTML.
+                                     Plain <img src>. Works offline.
+     TIER 3  Wikipedia API         — automatic, but ONLY when this page is
+                                     served over http://. Browsers block
+                                     cross-origin fetch from file:// pages.
+
+   If tier 3 is blocked and tiers 1-2 are empty, a diagnostic banner appears
+   above the itinerary telling the user exactly what to do. Nothing breaks.
+
+   TO USE YOUR OWN PICTURE: paste its URL or path into PHOTO_URLS in SECTION 3,
+   or save it as images/<slug>.jpg. Slug list is in PHOTO_URLS.
+   ========================================================================== */
+const WIKI_API = "https://en.wikipedia.org/api/rest_v1/page/summary/";
+const photoCache = {};
+let   wikiBlocked = false;     // set true the first time a fetch fails outright
+let   photoStats  = {ok:0, fail:0};
+
+function slugLabel(slug){
+  return (PHOTO_WIKI[slug] && PHOTO_WIKI[slug][1]) || slug.replace(/-/g," ");
+}
+
+/* TIER 3 — ask Wikipedia for the article's lead image. */
+async function wikiPhoto(slug){
+  if(wikiBlocked) return null;
+  if(photoCache[slug] !== undefined) return photoCache[slug];
+  const title = (PHOTO_WIKI[slug] && PHOTO_WIKI[slug][0]) || slug;
+  try{
+    const r = await fetch(WIKI_API + encodeURIComponent(title.replace(/ /g,"_")));
+    if(!r.ok) throw new Error("http " + r.status);
+    const j = await r.json();
+    const src = (j.originalimage && j.originalimage.source) ||
+                (j.thumbnail && j.thumbnail.source) || null;
+    photoCache[slug] = src ? {src, page:(j.content_urls||{}).desktop &&
+                                        j.content_urls.desktop.page} : null;
+  }catch(e){
+    wikiBlocked = true;          // almost certainly a file:// CORS block
+    photoCache[slug] = null;
+  }
+  return photoCache[slug];
+}
+
+/* Build one photo card. Tiers are chained through the <img> onerror handler. */
+function photoCard(slug){
+  const label   = slugLabel(slug);
+  const custom  = (PHOTO_URLS[slug] || "").trim();
+  const local   = "images/" + slug + ".jpg";
+  const first   = custom || local;
+  const gsearch = "https://www.google.com/search?tbm=isch&q=" +
+                  encodeURIComponent(label + " Rajasthan");
+  return `
+    <figure class="ph" style="margin:0" data-slug="${slug}">
+      <div class="imgbox">
+        <img src="${first}" alt="${label}" loading="lazy"
+             data-tier="${custom ? 1 : 2}" onload="photoOK(this)" onerror="photoNext(this)">
+      </div>
+      <figcaption class="meta">
+        <div class="nm">${label}</div>
+        <div class="lk"><a href="${gsearch}" target="_blank" rel="noopener">photos ↗</a></div>
+      </figcaption>
+    </figure>`;
+}
+
+function photoOK(img){
+  img.style.opacity = 1;
+  photoStats.ok++;
+}
+
+/* Called when the current tier fails — step down to the next one. */
+async function photoNext(img){
+  const fig  = img.closest(".ph");
+  const slug = fig.dataset.slug;
+  const tier = parseInt(img.dataset.tier, 10);
+
+  if(tier === 1){                       // custom URL failed → try local file
+    img.dataset.tier = 2;
+    img.src = "images/" + slug + ".jpg";
+    return;
+  }
+  if(tier === 2){                       // local file missing → try Wikipedia
+    img.dataset.tier = 3;
+    const data = await wikiPhoto(slug);
+    if(data && data.src){
+      img.src = data.src;
+      if(data.page){
+        fig.querySelector(".nm").innerHTML =
+          `<a href="${data.page}" target="_blank" rel="noopener">${slugLabel(slug)}</a>`;
+      }
+      return;
+    }
+  }
+  // all tiers exhausted — show a clean placeholder, never a broken-image icon
+  photoStats.fail++;
+  img.parentNode.innerHTML =
+    `<div class="fallback">no image yet<br><span style="opacity:.7">${"images/" + slug + ".jpg"}</span></div>`;
+  maybeShowBanner();
+}
+
+/* Diagnostic banner — only appears if photos are actually failing. */
+function maybeShowBanner(){
+  if(document.getElementById("photoBanner")) return;
+  if(photoStats.fail < 3) return;        // don't nag over one missing file
+  const slugs = Object.keys(PHOTO_URLS).slice(0,6).map(s=>"images/"+s+".jpg").join(" &middot; ");
+  const el = document.createElement("div");
+  el.id = "photoBanner";
+  el.className = "callout warn";
+  el.innerHTML = `
+    <b>Photos aren't loading — here's why, and two ten-second fixes.</b><br>
+    ${wikiBlocked ? "This page is open as a <code>file://</code> document, so your browser is blocking the automatic photo fetch from Wikipedia. That's a browser security rule, not a bug in the page." : "No local images found and no URLs set."}
+    <div style="margin-top:8px"><b>Fix A — serve the file (gets all photos automatically).</b>
+      Open a terminal in this folder and run <code>python3 -m http.server 8000</code>,
+      then open <code>http://localhost:8000/${location.pathname.split("/").pop() || "index.html"}</code>.</div>
+    <div style="margin-top:6px"><b>Fix B — use your own photos (works offline, anywhere).</b>
+      Make an <code>images</code> folder beside this file and drop in jpgs named by slug:
+      <span class="small">${slugs} …</span><br>
+      Or paste any image URL into <code>PHOTO_URLS</code> near the top of this file.</div>`;
+  const host = document.getElementById("itinerary");
+  host.insertBefore(el, host.querySelector("#days"));
+}
+
+function loadPhotos(box){
+  if(!box || box.dataset.loaded) return;
+  box.dataset.loaded = "1";
+  const slugs = JSON.parse(box.dataset.photos || "[]");
+  box.innerHTML = slugs.map(photoCard).join("");
+}
+
+/* ============================================================================
+   SECTION 8 — UI BEHAVIOUR
+   Nav, collapse/expand, checklist persistence, theme toggle, print.
+   ========================================================================== */
+function buildNav(){
+  const bar = $("#navbar");
+  const links = [["Overview","overview"],["Budget","budget"],["Itinerary","itinerary"],
+                 ["Food","food"],["Stays & Fuel","logistics"],["Variants","variants"],["Notes","notes"]];
+  const frag = links.map(([l,id])=>`<button data-jump="${id}">${l}</button>`).join("");
+  bar.insertAdjacentHTML("afterbegin", frag);
+  bar.addEventListener("click", e=>{
+    const id = e.target.dataset.jump;
+    if(!id) return;
+    document.getElementById(id).scrollIntoView({behavior:"smooth"});
+    bar.querySelectorAll("[data-jump]").forEach(b=>b.classList.toggle("on", b===e.target));
+  });
+}
+
+function wireDays(){
+  $("#days").addEventListener("click", e=>{
+    const head = e.target.closest("[data-toggle]");
+    if(!head) return;
+    const card = head.parentNode;
+    card.classList.toggle("open");
+    if(card.classList.contains("open")) loadPhotos(card.querySelector(".photos"));
+  });
+  // open Day 1 by default so the page doesn't look empty
+  const first = $("#day0");
+  first.classList.add("open");
+  loadPhotos(first.querySelector(".photos"));
+}
+
+$("#btnExpand").onclick = ()=>{
+  const cards = document.querySelectorAll(".day");
+  const anyClosed = [...cards].some(c=>!c.classList.contains("open"));
+  cards.forEach(c=>{
+    c.classList.toggle("open", anyClosed);
+    if(anyClosed) loadPhotos(c.querySelector(".photos"));
+  });
+};
+$("#btnTheme").onclick = ()=>{
+  document.body.classList.toggle("dark");
+  try{ localStorage.setItem("fc_theme", document.body.classList.contains("dark")?"dark":"light"); }catch(e){}
+};
+$("#btnPrint").onclick = ()=>window.print();
+
+function renderChecklist(){
+  let saved = {};
+  try{ saved = JSON.parse(localStorage.getItem("fc_chk")||"{}"); }catch(e){}
+  $("#checklist").innerHTML = TRIP.checklist.map((c,i)=>`
+    <li class="${saved[i]?"done":""}"><label><input type="checkbox" data-i="${i}" ${saved[i]?"checked":""}>${c}</label></li>`).join("");
+  $("#checklist").addEventListener("change", e=>{
+    const i = e.target.dataset.i;
+    e.target.closest("li").classList.toggle("done", e.target.checked);
+    saved[i] = e.target.checked;
+    try{ localStorage.setItem("fc_chk", JSON.stringify(saved)); }catch(err){}
+  });
+}
+$("#btnResetChk").onclick = ()=>{
+  try{ localStorage.removeItem("fc_chk"); }catch(e){}
+  renderChecklist();
+};
+
+/* ---- Boot ---- */
+(function init(){
+  try{ if(localStorage.getItem("fc_theme")==="dark") document.body.classList.add("dark"); }catch(e){}
+  renderHero(); renderMap(); renderLedger(); renderDays(); renderTables();
+  renderVariants(); renderNotes(); renderCalc(); renderChecklist();
+  buildNav(); wireDays();
+})();
+</script>
+</body>
+</html>

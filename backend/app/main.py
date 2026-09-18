@@ -1,0 +1,60 @@
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+from .config import ALLOWED_ORIGINS
+from .mcp_server import BearerAuthASGIMiddleware, build_mcp_inner_app
+from .routers import budget, checklist, days, expenses, meta, reference, trip
+from .services.trip_service import NotFoundError, ValidationError
+
+# Mounting a Starlette sub-app does NOT forward ASGI "lifespan" events to it,
+# and the MCP session manager only starts inside its own lifespan context —
+# so we build the inner app once here and manually enter its lifespan from
+# FastAPI's own, keeping it alive for the whole process.
+mcp_inner_app = build_mcp_inner_app()
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    async with mcp_inner_app.router.lifespan_context(mcp_inner_app):
+        yield
+
+
+app = FastAPI(title="Trip Planner API", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.exception_handler(NotFoundError)
+def handle_not_found(_request: Request, exc: NotFoundError):
+    return JSONResponse({"detail": str(exc)}, status_code=404)
+
+
+@app.exception_handler(ValidationError)
+def handle_validation(_request: Request, exc: ValidationError):
+    return JSONResponse({"detail": str(exc)}, status_code=400)
+
+
+app.include_router(trip.router)
+app.include_router(meta.router)
+app.include_router(budget.router)
+app.include_router(days.router)
+app.include_router(reference.router)
+app.include_router(checklist.router)
+app.include_router(expenses.router)
+
+
+@app.get("/health")
+def health():
+    return {"ok": True}
+
+
+app.mount("/mcp", BearerAuthASGIMiddleware(mcp_inner_app))

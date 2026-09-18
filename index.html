@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title id="pageTitle">Trip Planner</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="syncbar">
+  <div class="wrap">
+    <span class="msg" id="syncMsg">Loading…</span>
+    <span class="navspacer"></span>
+    <button id="btnSettings">⚙ Settings</button>
+  </div>
+</div>
+
+<header class="hero">
+  <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <g fill="#fff">
+      <path d="M20 200 V120 h22 v-12 h12 v12 h24 V88 h22 V74 h12 v14 h24 v32 h24 v-12 h12 v12 h24 v80 Z"/>
+      <path d="M200 200 V104 h26 V76 h14 V58 h12 v18 h14 v28 h28 v-14 h14 v14 h26 v96 Z"/>
+      <path d="M340 200 V128 h24 v-14 h12 v14 h26 V96 h22 V82 h12 v14 h24 v32 h26 v72 Z"/>
+      <path d="M500 200 V136 h24 v-16 h14 v16 h28 v-22 h22 v86 Z"/>
+    </g>
+  </svg>
+  <div class="wrap">
+    <div class="kicker" id="hKicker"></div>
+    <h1 id="hTitle"></h1>
+    <div class="sub" id="hSub"></div>
+    <div class="pills" id="hPills"></div>
+    <div class="editbar"><button class="btn secondary" id="btnEditMeta">Edit trip info</button></div>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap" id="navbar">
+    <div class="navspacer"></div>
+    <button class="iconbtn" id="btnExpand" title="Expand or collapse all days">⇕ All</button>
+    <button class="iconbtn" id="btnTheme" title="Light / dark">◐</button>
+    <button class="iconbtn" id="btnPrint" title="Print or save as PDF">⎙</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ---- Overview: map + ledger ---- -->
+  <section id="overview">
+    <h2>Route & Distance Ledger</h2>
+    <div class="grid g2">
+      <div class="mapbox" id="routeMap"></div>
+      <div class="card">
+        <h3 style="margin-top:0">The shape of the trip</h3>
+        <p>A closed loop, one road driven twice at most. Edit the itinerary below, or ask your
+        connected agent to update it — every edit here and every edit made through the MCP
+        server land in the same trip.</p>
+        <p><a id="fullMapLink" href="#" target="_blank" rel="noopener">▸ Open the full circuit in Google Maps</a></p>
+      </div>
+    </div>
+    <div class="tablewrap" style="margin-top:14px"><table id="ledger"></table></div>
+  </section>
+
+  <!-- ---- Budget calculator ---- -->
+  <section id="budget">
+    <h2>Live Budget Calculator</h2>
+    <div class="card">
+      <p class="small">Change any field and everything recalculates.</p>
+      <div class="calc" id="calcFields"></div>
+      <div class="out" id="calcOut"></div>
+      <div class="editbar"><button class="btn secondary" id="btnEditBudget">Edit budget defaults</button></div>
+    </div>
+  </section>
+
+  <!-- ---- Days ---- -->
+  <section id="itinerary">
+    <h2>Day by Day</h2>
+    <div class="editbar"><button class="btn" id="btnAddDay">+ Add day</button></div>
+    <div id="days"></div>
+  </section>
+
+  <!-- ---- Expenses ---- -->
+  <section id="expenses">
+    <h2>Expenses</h2>
+    <div class="card">
+      <div id="expenseTotals" class="out" style="margin-bottom:14px"></div>
+      <div class="tablewrap"><table id="expenseTable"></table></div>
+      <div class="editbar"><button class="btn" id="btnAddExpense">+ Log an expense</button></div>
+    </div>
+  </section>
+
+  <!-- ---- Food ---- -->
+  <section id="food">
+    <h2>The Non-Vegetarian Map</h2>
+    <div class="tablewrap"><table id="foodTable"></table></div>
+    <div class="editbar"><button class="btn secondary" id="btnEditFood">Edit (raw JSON)</button></div>
+  </section>
+
+  <!-- ---- Stays & fuel ---- -->
+  <section id="logistics">
+    <h2>Stays & Fuel</h2>
+    <div class="grid g2">
+      <div><h3>Where you sleep</h3><div class="tablewrap"><table id="stayTable"></table></div></div>
+      <div><h3>Refuel points</h3><div class="tablewrap"><table id="fuelTable"></table></div></div>
+    </div>
+    <div class="editbar">
+      <button class="btn secondary" id="btnEditStays">Edit stays (raw JSON)</button>
+      <button class="btn secondary" id="btnEditFuel">Edit fuel stops (raw JSON)</button>
+    </div>
+  </section>
+
+  <!-- ---- Variants ---- -->
+  <section id="variants">
+    <h2>Route Variants</h2>
+    <div class="grid g2" id="variantCards"></div>
+    <div class="editbar"><button class="btn secondary" id="btnEditVariants">Edit (raw JSON)</button></div>
+  </section>
+
+  <!-- ---- Notes + checklist ---- -->
+  <section id="notes">
+    <h2>Driving Notes & Pre-Departure Checklist</h2>
+    <div class="grid g2">
+      <div>
+        <div id="noteBlocks"></div>
+        <div class="editbar"><button class="btn secondary" id="btnEditNotes">Edit notes (raw JSON)</button></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">Checklist</h3>
+        <ul class="chk" id="checklist"></ul>
+        <div class="editbar"><button class="btn secondary" id="btnAddChecklistItem">+ Add item</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---- Sources ---- -->
+  <section id="sources">
+    <h2>Sources</h2>
+    <div class="card"><ul id="sourcesList" style="margin:0;padding-left:18px;font-size:.88rem"></ul></div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    Distances, hours, prices and road conditions change — re-check each leg before you drive it.
+    Data lives on a small FastAPI backend; an MCP server on the same backend lets Claude edit
+    this trip directly when you ask it to.
+  </div>
+</footer>
+
+<!-- ---- Settings modal ---- -->
+<div class="modal-backdrop" id="settingsModal" hidden>
+  <div class="modal">
+    <h3>Settings</h3>
+    <div class="field"><label>Shared editor token</label><input type="password" id="settingsToken"></div>
+    <div class="field"><label>Your display name (for attributing edits/expenses)</label><input type="text" id="settingsName"></div>
+    <div class="modal-actions">
+      <button class="btn secondary" data-close>Cancel</button>
+      <button class="btn" id="btnSaveSettings">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ---- Generic modal (edit forms render into #modalBody) ---- -->
+<div class="modal-backdrop" id="genericModal" hidden>
+  <div class="modal">
+    <h3 id="modalTitle">Edit</h3>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn secondary" data-close>Cancel</button>
+      <button class="btn" id="btnModalSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ---- Confirm dialog (non-blocking; avoids native confirm()) ---- -->
+<div class="modal-backdrop" id="confirmModal" hidden>
+  <div class="modal">
+    <p id="confirmMsg" style="margin:0 0 16px"></p>
+    <div class="modal-actions">
+      <button class="btn secondary" id="confirmNo">Cancel</button>
+      <button class="btn" id="confirmYes">OK</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/render.js"></script>
+<script src="js/editor.js"></script>
+<script src="js/expenses.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

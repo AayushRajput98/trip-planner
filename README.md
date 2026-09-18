@@ -65,10 +65,9 @@ Open `http://127.0.0.1:8080/index.html` — `js/config.js` already points at
    | `DATA_DIR` | `/data` (wherever you mounted the Volume) |
    | `AUTH_TOKEN` | a long random string — the shared secret every editor and the MCP client use |
    | `ALLOWED_ORIGINS` | `https://<your-username>.github.io` (the GitHub Pages origin below) |
-4. The Volume starts empty. Seed it once with the JSON files already committed under
-   `backend/data/*.json` (Railway's shell, or a scratch deploy without the Volume attached, then
-   move the files onto it) so the app doesn't start with a blank trip.
-5. Deploy, then confirm `GET https://<your-app>.up.railway.app/health` returns `{"ok": true}`.
+4. Deploy. **The Volume auto-seeds itself** on first boot from the JSON files committed under
+   `backend/data/*.json` — no manual shell step needed (see `backend/README.md` for how).
+5. Confirm `GET https://<your-app>.up.railway.app/health` returns `{"ok": true}`.
 6. **Verify persistence before trusting it**: trigger a redeploy and re-check `/api/trip` still
    has your data.
 

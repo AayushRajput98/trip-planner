@@ -1,10 +1,16 @@
 import os
 from pathlib import Path
 
-# Where the JSON data files live. On Railway this should point at the mounted
-# Volume's path (e.g. /data) via the DATA_DIR env var — otherwise every
-# redeploy wipes the trip data. Defaults to backend/data for local dev.
-DATA_DIR = os.environ.get("DATA_DIR", str(Path(__file__).resolve().parents[1] / "data"))
+# The JSON files committed in the repo (backend/data/) — always present in the
+# deployed source tree regardless of where DATA_DIR points. Used to seed a
+# fresh, empty Volume on first boot; see app.storage.ensure_seeded().
+SEED_DIR = str(Path(__file__).resolve().parents[1] / "data")
+
+# Where the JSON data files actually live at runtime. On Railway this should
+# point at the mounted Volume's path (e.g. /data) via the DATA_DIR env var —
+# otherwise every redeploy wipes the trip data. Defaults to SEED_DIR for
+# local dev, where reading and writing the same directory is fine.
+DATA_DIR = os.environ.get("DATA_DIR", SEED_DIR)
 
 # Shared bearer token required on every mutating REST endpoint and every MCP
 # tool call. One token for the whole family — not a per-user account system.

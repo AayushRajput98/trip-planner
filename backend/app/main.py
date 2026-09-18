@@ -8,6 +8,11 @@ from .config import ALLOWED_ORIGINS
 from .mcp_server import BearerAuthASGIMiddleware, build_mcp_inner_app
 from .routers import budget, checklist, days, expenses, meta, reference, trip
 from .services.trip_service import NotFoundError, ValidationError
+from .storage import ensure_seeded
+
+# On a brand-new Railway Volume (or any empty DATA_DIR), populate it from the
+# JSON files committed in the repo before anything tries to read from it.
+ensure_seeded()
 
 # Mounting a Starlette sub-app does NOT forward ASGI "lifespan" events to it,
 # and the MCP session manager only starts inside its own lifespan context —

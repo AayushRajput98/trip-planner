@@ -2,12 +2,13 @@
 one lock per filename so concurrent requests don't interleave writes."""
 import json
 import os
+import shutil
 import tempfile
 import threading
 from pathlib import Path
 from typing import Any
 
-from .config import DATA_DIR
+from .config import DATA_DIR, SEED_DIR
 
 _locks: dict[str, threading.Lock] = {}
 _locks_guard = threading.Lock()
@@ -30,6 +31,22 @@ def load_json(name: str, default: Any = None) -> Any:
         if not p.exists():
             return default
         return json.loads(p.read_text(encoding="utf-8"))
+
+
+def ensure_seeded() -> None:
+    """If DATA_DIR is a fresh, empty Volume (e.g. a brand-new Railway mount),
+    populate it from the JSON files committed in the repo (SEED_DIR) so the
+    app doesn't boot with a blank trip. Never overwrites a file that already
+    exists, so this is safe to call on every startup, not just the first."""
+    data_dir = Path(DATA_DIR)
+    seed_dir = Path(SEED_DIR)
+    data_dir.mkdir(parents=True, exist_ok=True)
+    if data_dir.resolve() == seed_dir.resolve():
+        return  # local dev: DATA_DIR *is* the seed dir
+    for seed_file in seed_dir.glob("*.json"):
+        target = data_dir / seed_file.name
+        if not target.exists():
+            shutil.copy(seed_file, target)
 
 
 def save_json(name: str, obj: Any) -> None:

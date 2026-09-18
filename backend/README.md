@@ -36,10 +36,12 @@ default when the page is opened from `localhost`/`127.0.0.1`).
    - `AUTH_TOKEN=<a long random string>` — the shared secret every editor and the MCP client use
    - `ALLOWED_ORIGINS=https://<your-username>.github.io` — the GitHub Pages origin serving the
      frontend (comma-separate if you serve it from more than one origin)
-4. First deploy: since the volume starts empty, copy the seed files from `backend/data/*.json`
-   in this repo onto the volume once (Railway's shell, or a one-off deploy without the volume
-   mounted, then move the files over) so the app doesn't start with empty data.
-5. Deploy. Confirm `GET https://<your-app>.up.railway.app/health` returns `{"ok": true}`.
+4. Deploy. **The Volume auto-seeds itself** — `app/main.py` calls `storage.ensure_seeded()` on
+   every boot, which copies the JSON files committed under `backend/data/*.json` into `DATA_DIR`
+   for any file that isn't already there. It never overwrites a file that already exists, so it
+   only does anything the first time (an empty Volume) and is a no-op on every later redeploy.
+   No manual shell step needed.
+5. Confirm `GET https://<your-app>.up.railway.app/health` returns `{"ok": true}`.
 6. **Verify persistence**: trigger a redeploy and re-check `/api/trip` still has your data — this
    is the one step in this whole setup that silently loses everything if skipped.
 

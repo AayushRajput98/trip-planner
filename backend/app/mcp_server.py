@@ -64,13 +64,16 @@ def get_day(n: str) -> dict:
 @mcp.tool()
 def update_day(n: str, patch: dict[str, Any]) -> dict:
     """Merge `patch` into the day with id `n` (e.g. {"title": "..."} or
-    {"tl": [...]} to replace the whole timetable). Only given keys change."""
+    {"tl": [...]} to replace the whole timetable). Only given keys change;
+    set a key to null to delete it (the day's own "n" can't be deleted)."""
     return trip_service.update_day(n, patch)
 
 
 @mcp.tool()
 def add_day(day: dict[str, Any]) -> dict:
-    """Append a new day. Must include a unique "n" (e.g. "Day 9")."""
+    """Append a new day to the end of the list. Must include a unique "n"
+    (e.g. "Day 9"). To insert it somewhere else, or to restore a day that was
+    just deleted, follow up with reorder_days to fix the ordering."""
     return trip_service.add_day(day)
 
 
@@ -102,7 +105,8 @@ def get_meta() -> dict:
 
 @mcp.tool()
 def update_meta(patch: dict[str, Any]) -> dict:
-    """Merge `patch` into the trip meta (title/kicker/sub/pills)."""
+    """Merge `patch` into the trip meta (title/kicker/sub/pills). Set a key
+    to null to delete it."""
     return trip_service.update_meta(patch)
 
 
@@ -114,7 +118,8 @@ def get_budget() -> dict:
 
 @mcp.tool()
 def update_budget(patch: dict[str, Any]) -> dict:
-    """Merge `patch` into the budget config (vehicle/prices/legs)."""
+    """Merge `patch` into the budget config (vehicle/prices/legs). Set a key
+    (including inside "prices" or "prices.defaults") to null to delete it."""
     return trip_service.update_budget(patch)
 
 

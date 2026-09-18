@@ -23,6 +23,22 @@ class ValidationError(Exception):
     pass
 
 
+def _merge_patch(target: dict, patch: dict, protected_keys: set[str] = frozenset()) -> None:
+    """RFC 7396 JSON Merge Patch, in place: a `null` value deletes the key
+    instead of storing a literal null. Without this, a patch can add a field
+    but never remove one — every mistaken or exploratory key becomes
+    permanent. `protected_keys` (e.g. a record's own id) are left completely
+    untouched by a null in the patch — not deleted, and not overwritten to
+    null either."""
+    for key, val in patch.items():
+        if key in protected_keys and val is None:
+            continue
+        if val is None:
+            target.pop(key, None)
+        else:
+            target[key] = val
+
+
 # ---- meta ---------------------------------------------------------------
 def get_meta() -> dict:
     return storage.load_json(META_FILE, {})
@@ -30,7 +46,7 @@ def get_meta() -> dict:
 
 def update_meta(patch: dict) -> dict:
     meta = get_meta()
-    meta.update(patch)
+    _merge_patch(meta, patch)
     storage.save_json(META_FILE, meta)
     return meta
 
@@ -46,11 +62,13 @@ def update_budget(patch: dict) -> dict:
         if key == "prices" and isinstance(val, dict) and isinstance(budget.get("prices"), dict):
             prices = budget["prices"]
             defaults_patch = val.pop("defaults", None)
-            prices.update(val)
+            _merge_patch(prices, val)
             if defaults_patch and isinstance(prices.get("defaults"), dict):
-                prices["defaults"].update(defaults_patch)
+                _merge_patch(prices["defaults"], defaults_patch)
             elif defaults_patch:
                 prices["defaults"] = defaults_patch
+        elif val is None:
+            budget.pop(key, None)
         else:
             budget[key] = val
     storage.save_json(BUDGET_FILE, budget)
@@ -92,7 +110,7 @@ def update_day(n: str, patch: dict) -> dict:
     if "tl" in patch:
         for entry in patch["tl"]:
             entry.setdefault("status", "planned")
-    day.update(patch)
+    _merge_patch(day, patch, protected_keys={"n"})
     days[idx] = day
     storage.save_json(DAYS_FILE, days)
     return day

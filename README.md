@@ -87,19 +87,23 @@ The backend also runs an MCP server at `/mcp` on the same Railway service, expos
 checklist CRUD, and expense CRUD — all backed by the same `trip_service.py` the REST API uses,
 so nothing an agent does can drift from what the page shows.
 
+Add it as a custom connector in Claude Desktop, the Claude mobile app, claude.ai, or ChatGPT
+using the URL `https://<your-app>.up.railway.app/mcp` — each expects real OAuth for a remote
+MCP server, so this triggers a proper authorization flow: it redirects to a plain page hosted by
+this same backend asking for the shared secret (the same `AUTH_TOKEN` used for page edits), and
+approving it once per device is what actually authorizes that client (see
+`backend/app/oauth/provider.py`). Claude Code can add it the same simple way, no header needed:
+
 ```bash
-claude mcp add --transport http trip-planner https://<your-app>.up.railway.app/mcp \
-  -H "Authorization: Bearer <your AUTH_TOKEN>"
+claude mcp add --transport http trip-planner https://<your-app>.up.railway.app/mcp
 ```
 
 Then just ask, in a normal conversation: "mark Day 3's fort visit as visited", "add a ₹2,000
-fuel expense paid by Mum", "add a new day after Day 5 for Jodhpur". Every tool call requires the
-same shared token as the page's own edits (checked by a small ASGI middleware in front of the
-MCP app — see `backend/app/mcp_server.py`), and every change is visible on the page the next
-time it loads.
+fuel expense paid by Mum", "add a new day after Day 5 for Jodhpur" — every change is visible on
+the page the next time it loads.
 
-To verify the server yourself without Claude, `backend/README.md` has the raw MCP handshake
-(`initialize` → `notifications/initialized` → `tools/call`) as curl commands.
+To verify the OAuth flow yourself without any of those clients, `backend/README.md` has the full
+register → authorize → consent → token exchange sequence as curl commands.
 
 ## Editing the trip
 

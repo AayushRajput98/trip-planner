@@ -4,18 +4,26 @@ Every tool here is a thin wrapper around app.services.trip_service — the
 exact same logic the REST routers use, so the page and any agent editing
 through MCP always see a consistent trip.
 
-Built on mcp>=2.0's MCPServer (the v2 rename of FastMCP). Mounted as an ASGI
-app at /mcp by app.main, wrapped in BearerAuthASGIMiddleware so every call
-requires the same shared Authorization: Bearer <token> the REST API uses.
+Built on mcp>=2.0's MCPServer (the v2 rename of FastMCP). Mounted at the
+FastAPI app's root by app.main (see build_mcp_inner_app's docstring for why
+it's the root mount, not a /mcp sub-mount). Authorization is real OAuth 2.1
+(see app/oauth/provider.py) — Claude Desktop, the Claude mobile app, and
+ChatGPT all expect that for a remote MCP server, and none of them accept a
+plain static bearer token. The REST API's separate AUTH_TOKEN check (for
+page edits) is untouched; this is scoped to the MCP surface only.
 """
 from typing import Any
 
+from mcp.server.auth.settings import AuthSettings, ClientRegistrationOptions, RevocationOptions
 from mcp.server.mcpserver import MCPServer
-from starlette.responses import JSONResponse
-from starlette.types import ASGIApp, Receive, Scope, Send
 
-from .auth import check_token
+from .config import PUBLIC_BASE_URL
+from .oauth.provider import TripOAuthProvider, handle_consent
 from .services import trip_service
+
+RESOURCE_URL = f"{PUBLIC_BASE_URL}/mcp"
+
+oauth_provider = TripOAuthProvider(base_url=PUBLIC_BASE_URL, resource_url=RESOURCE_URL)
 
 mcp = MCPServer(
     "trip-planner",
@@ -25,7 +33,20 @@ mcp = MCPServer(
         "food/stay/fuel/variant/notes reference tables, a packing checklist, and an "
         "expense log. Call get_trip() first to see the whole plan before editing."
     ),
+    auth_server_provider=oauth_provider,
+    auth=AuthSettings(
+        issuer_url=PUBLIC_BASE_URL,
+        resource_server_url=RESOURCE_URL,
+        client_registration_options=ClientRegistrationOptions(enabled=True),
+        revocation_options=RevocationOptions(enabled=True),
+        validate_token_resource=True,
+    ),
 )
+
+
+@mcp.custom_route("/consent", methods=["GET", "POST"])
+async def consent_route(request):
+    return await handle_consent(request)
 
 
 @mcp.tool()
@@ -171,36 +192,23 @@ def delete_expense(expense_id: str) -> dict:
     return {"ok": True}
 
 
-class BearerAuthASGIMiddleware:
-    """Wraps the MCP Starlette app so every request needs the same shared
-    Authorization: Bearer <token> the REST API's write endpoints require.
-    Non-"http" scopes (e.g. "lifespan") pass straight through untouched."""
-
-    def __init__(self, app: ASGIApp) -> None:
-        self.app = app
-
-    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope["type"] == "http":
-            headers = dict(scope.get("headers") or [])
-            raw = headers.get(b"authorization", b"").decode("latin-1")
-            token = raw[len("Bearer "):].strip() if raw.startswith("Bearer ") else None
-            if not check_token(token):
-                response = JSONResponse({"detail": "Missing or invalid bearer token"}, status_code=401)
-                await response(scope, receive, send)
-                return
-        await self.app(scope, receive, send)
-
-
 def build_mcp_inner_app():
-    """The raw MCP Starlette app (unwrapped). Its `.router.lifespan_context`
-    must be entered by the parent FastAPI app's own lifespan — mounting a
-    sub-app does NOT forward lifespan events to it, and the MCP session
-    manager only starts inside that lifespan. See app/main.py.
+    """The raw MCP Starlette app. Its `.router.lifespan_context` must be
+    entered by the parent FastAPI app's own lifespan — mounting a sub-app
+    does NOT forward lifespan events to it, and the MCP session manager only
+    starts inside that lifespan. See app/main.py.
 
-    `host="0.0.0.0"` (matching how uvicorn actually binds) is required here:
-    the SDK auto-enables DNS-rebinding protection — rejecting any request
-    whose Host header isn't localhost/127.0.0.1 — whenever this defaults to
-    "127.0.0.1". That's fine talking to it on localhost, but it 401s every
-    request once deployed behind a real hostname (e.g. Railway). Our own
-    BearerAuthASGIMiddleware is the auth boundary we actually rely on."""
-    return mcp.streamable_http_app(streamable_http_path="/", host="0.0.0.0")
+    `host="0.0.0.0"` (matching how uvicorn actually binds) is required: the
+    SDK auto-enables DNS-rebinding protection — rejecting any request whose
+    Host header isn't localhost/127.0.0.1 — whenever this defaults to
+    "127.0.0.1". That's fine on localhost, but it 401s every request once
+    deployed behind a real hostname (e.g. Railway).
+
+    `streamable_http_path="/mcp"`, mounted at the FastAPI app's *root* (not
+    under a /mcp sub-mount) in app/main.py: the OAuth routes this app also
+    carries (/authorize, /token, /register, /.well-known/oauth-authorization-
+    server) are registered at the paths `AuthSettings.issuer_url` implies —
+    RFC 8414 discovery expects those directly off the issuer's origin, not
+    nested under an extra path segment. Keeping the MCP tool endpoint itself
+    at /mcp this way means its external URL is unchanged."""
+    return mcp.streamable_http_app(streamable_http_path="/mcp", host="0.0.0.0")

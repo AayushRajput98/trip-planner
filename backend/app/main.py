@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .config import ALLOWED_ORIGINS
-from .mcp_server import BearerAuthASGIMiddleware, build_mcp_inner_app
+from .mcp_server import build_mcp_inner_app
 from .routers import budget, checklist, days, expenses, meta, reference, trip
 from .services.trip_service import NotFoundError, ValidationError
 from .storage import ensure_seeded
@@ -62,4 +62,9 @@ def health():
     return {"ok": True}
 
 
-app.mount("/mcp", BearerAuthASGIMiddleware(mcp_inner_app))
+# Mounted at the root, registered last so /api/* and /health above still win
+# first for their exact paths — this carries /mcp itself plus the OAuth
+# routes (/authorize, /token, /register, /.well-known/oauth-authorization-
+# server, /consent). See mcp_server.build_mcp_inner_app's docstring for why
+# this can't be a /mcp sub-mount instead.
+app.mount("/", mcp_inner_app)

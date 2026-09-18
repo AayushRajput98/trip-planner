@@ -195,5 +195,12 @@ def build_mcp_inner_app():
     """The raw MCP Starlette app (unwrapped). Its `.router.lifespan_context`
     must be entered by the parent FastAPI app's own lifespan — mounting a
     sub-app does NOT forward lifespan events to it, and the MCP session
-    manager only starts inside that lifespan. See app/main.py."""
-    return mcp.streamable_http_app(streamable_http_path="/")
+    manager only starts inside that lifespan. See app/main.py.
+
+    `host="0.0.0.0"` (matching how uvicorn actually binds) is required here:
+    the SDK auto-enables DNS-rebinding protection — rejecting any request
+    whose Host header isn't localhost/127.0.0.1 — whenever this defaults to
+    "127.0.0.1". That's fine talking to it on localhost, but it 401s every
+    request once deployed behind a real hostname (e.g. Railway). Our own
+    BearerAuthASGIMiddleware is the auth boundary we actually rely on."""
+    return mcp.streamable_http_app(streamable_http_path="/", host="0.0.0.0")

@@ -58,6 +58,20 @@ function hasToken() {
   return !!getSettings().token;
 }
 
+/* Which of the three of you is looking at the page right now — remembered
+   per device, used to attribute expenses. Not an auth identity. */
+const PERSON_KEY = "fc_person";
+
+function getPerson() {
+  try { return localStorage.getItem(PERSON_KEY) || ""; }
+  catch (e) { return ""; }
+}
+
+function setPerson(name) {
+  try { localStorage.setItem(PERSON_KEY, name); }
+  catch (e) { /* ignore */ }
+}
+
 async function api(path, { method = "GET", body, auth = method !== "GET" } = {}) {
   const headers = {};
   if (body !== undefined) headers["Content-Type"] = "application/json";

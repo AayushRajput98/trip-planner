@@ -1,21 +1,49 @@
 /* ============================================================================
-   APP — boot, nav, theme, print, checklist wiring, settings modal.
+   APP — boot, tabs, the Trip Toolkit grid, theme, print, checklist
+   wiring, the person picker, settings modal.
    ========================================================================== */
 let TRIP = null;
+const TABS = ["overview", "itinerary", "expenses"];
 
-function buildNav() {
-  const bar = $("#navbar");
-  const links = [["Overview","overview"],["Budget","budget"],["Itinerary","itinerary"],
-                 ["Expenses","expenses"],["Food","food"],["Stays & Fuel","logistics"],
-                 ["Variants","variants"],["Notes","notes"]];
-  const frag = links.map(([l,id])=>`<button data-jump="${id}">${l}</button>`).join("");
-  bar.insertAdjacentHTML("afterbegin", frag);
-  bar.addEventListener("click", e=>{
-    const id = e.target.dataset.jump;
-    if(!id) return;
-    document.getElementById(id).scrollIntoView({behavior:"smooth"});
-    bar.querySelectorAll("[data-jump]").forEach(b=>b.classList.toggle("on", b===e.target));
+function wireTabs() {
+  document.querySelectorAll(".tabbtn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.tab;
+      TABS.forEach(t => { document.getElementById("tab-" + t).hidden = (t !== target); });
+      document.querySelectorAll(".tabbtn").forEach(b => b.classList.toggle("on", b === btn));
+    });
   });
+}
+
+function wireToolkit() {
+  document.querySelectorAll(".quick-tile[data-popup]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.getElementById(btn.dataset.popup).hidden = false;
+    });
+  });
+  document.querySelectorAll(".util-popup").forEach(popup => {
+    popup.addEventListener("click", e => {
+      if (e.target.closest("[data-close]")) popup.hidden = true;
+    });
+  });
+}
+
+function wirePerson() {
+  function refreshLabel() {
+    const p = getPerson();
+    $("#personLabel").textContent = p || "Who's viewing?";
+    $("#personAvatar").textContent = p ? p[0].toUpperCase() : "?";
+  }
+  $("#btnPerson").onclick = () => { $("#personModal").hidden = false; };
+  $("#personModal").querySelectorAll("[data-person]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      setPerson(btn.dataset.person);
+      $("#personModal").hidden = true;
+      refreshLabel();
+    });
+  });
+  refreshLabel();
+  if (!getPerson()) $("#personModal").hidden = false;
 }
 
 function wireDays() {
@@ -39,7 +67,10 @@ function wireChrome() {
   };
   $("#btnTheme").onclick = ()=>{
     document.body.classList.toggle("dark");
-    try{ localStorage.setItem("fc_theme", document.body.classList.contains("dark")?"dark":"light"); }catch(e){}
+    const dark = document.body.classList.contains("dark");
+    $("#themeIconMoon").hidden = dark;
+    $("#themeIconSun").hidden = !dark;
+    try{ localStorage.setItem("fc_theme", dark?"dark":"light"); }catch(e){}
   };
   $("#btnPrint").onclick = ()=>window.print();
 }
@@ -62,14 +93,13 @@ function wireSettings() {
   $("#btnSettings").onclick = () => {
     const s = getSettings();
     $("#settingsToken").value = s.token || "";
-    $("#settingsName").value = s.name || "";
     $("#settingsModal").hidden = false;
   };
   $("#settingsModal").addEventListener("click", e => {
     if (e.target.dataset.close !== undefined) $("#settingsModal").hidden = true;
   });
   $("#btnSaveSettings").onclick = () => {
-    saveSettings({ token: $("#settingsToken").value.trim(), name: $("#settingsName").value.trim() });
+    saveSettings({ token: $("#settingsToken").value.trim() });
     $("#settingsModal").hidden = true;
     updateSyncMsg();
   };
@@ -83,9 +113,14 @@ function updateSyncMsg() {
 
 async function boot() {
   wireSettings();
+  wirePerson();
   updateSyncMsg();
   try {
-    if (localStorage.getItem("fc_theme") === "dark") document.body.classList.add("dark");
+    if (localStorage.getItem("fc_theme") === "dark") {
+      document.body.classList.add("dark");
+      $("#themeIconMoon").hidden = true;
+      $("#themeIconSun").hidden = false;
+    }
   } catch (e) { /* ignore */ }
 
   try {
@@ -94,9 +129,10 @@ async function boot() {
     $("#syncMsg").textContent = "Could not reach the backend: " + e.message;
     return;
   }
-  document.getElementById("pageTitle").textContent = TRIP.meta.title;
+  document.getElementById("pageTitle").textContent = "TripCraft — " + TRIP.meta.title;
   renderAll();
-  buildNav();
+  wireTabs();
+  wireToolkit();
   wireDays();
   wireChrome();
   wireChecklist();

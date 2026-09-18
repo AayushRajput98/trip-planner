@@ -15,11 +15,14 @@ function md(s) {
 }
 
 /* ---- Hero ---- */
+const HERO_PHOTO_SLUGS = ["jaisalmer-fort", "chittorgarh-fort", "mount-abu"];
+
 function renderHero() {
   $("#hKicker").textContent = TRIP.meta.kicker;
   $("#hTitle").textContent  = TRIP.meta.title;
   $("#hSub").innerHTML      = md(TRIP.meta.sub);
   $("#hPills").innerHTML    = TRIP.meta.pills.map(p => `<span class="pill">${p}</span>`).join("");
+  $("#heroPhotos").innerHTML = HERO_PHOTO_SLUGS.map(photoCard).join("");
 }
 
 /* ---- Route map (inline SVG, node coords are geographically proportional) ---- */
@@ -53,23 +56,26 @@ function renderMap() {
   $("#fullMapLink").href = "https://www.google.com/maps/dir/Delhi/Jaipur/Ajmer/Pushkar/Chittorgarh/Udaipur/Mount+Abu/Barmer/Jaisalmer/Bikaner/Delhi";
 }
 
-/* ---- Distance ledger ---- */
+/* ---- Distance ledger — bento rows, not a table ---- */
 function renderLedger() {
   const tot = TRIP.legs.reduce((a,l)=>a+l[2],0);
-  $("#ledger").innerHTML = `
-    <thead><tr><th>Day</th><th>Leg</th><th class="num">km</th><th class="num">Drive time</th>
-    <th class="num">Door to door</th><th>Highways</th></tr></thead>
-    <tbody>${TRIP.legs.map(l=>`<tr><td><b>${l[0]}</b></td><td>${l[1]}</td><td class="num">${l[2]}</td>
-      <td class="num">${l[3]}</td><td class="num">${l[4]}</td><td>${l[5]}</td></tr>`).join("")}
-      <tr style="background:var(--maroon)"><td colspan="2" style="color:#fff"><b>TOTAL</b></td>
-      <td class="num" style="color:#fff"><b>~${tot.toLocaleString("en-IN")}</b></td>
-      <td class="num" style="color:#fff"><b>~48h30</b></td><td class="num" style="color:#fff"><b>~54h</b></td><td></td></tr>
-    </tbody>`;
+  $("#ledger").innerHTML = TRIP.legs.map(l => `
+    <div class="ledger-row">
+      <div class="ledger-day">${l[0]}</div>
+      <div class="ledger-leg">${l[1]}</div>
+      <div class="ledger-km">${l[2]} km &middot; ${l[3]} driving</div>
+    </div>`).join("") + `
+    <div class="ledger-row ledger-total">
+      <div class="ledger-day">&Sigma;</div>
+      <div class="ledger-leg">Total</div>
+      <div class="ledger-km">~${tot.toLocaleString("en-IN")} km &middot; ~48h30 driving &middot; ~54h door to door</div>
+    </div>`;
 }
 
 /* ---- Day cards ---- */
 const STATUS_CYCLE = { planned: "visited", visited: "skipped", skipped: "planned" };
-const STATUS_LABEL = { planned: "mark visited", visited: "✓ visited", skipped: "✕ skipped" };
+const STATUS_ICON = { planned: "circle", visited: "checkCircle", skipped: "xCircle" };
+const STATUS_TEXT = { planned: "Planned", visited: "Visited", skipped: "Skipped" };
 
 function renderDays() {
   $("#days").innerHTML = TRIP.days.map((d,i)=>`
@@ -81,7 +87,7 @@ function renderDays() {
           <div class="s">${d.stat||""}</div>
         </div>
         <span class="loadtag">${d.load||""}</span>
-        <span class="chev">⌄</span>
+        <span class="chev">${icon("expand", 15)}</span>
       </div>
       <div class="daybody">
         ${(d.alerts||[]).map(a=>`<div class="callout ${a.type}">${md(a.html)}</div>`).join("")}
@@ -90,7 +96,7 @@ function renderDays() {
         <ul class="tl">${(d.tl||[]).map((t,ti)=>`
           <li class="${t.key?"key":""} status-${t.status||"planned"}">
             <span class="time">${t.time}</span> &nbsp;<span class="what">${md(t.what)}</span>
-            <button class="statusbtn" data-day="${d.n}" data-index="${ti}" data-next="${STATUS_CYCLE[t.status||"planned"]}">${STATUS_LABEL[t.status||"planned"]}</button>
+            <button class="statusbtn" data-day="${d.n}" data-index="${ti}" data-next="${STATUS_CYCLE[t.status||"planned"]}">${icon(STATUS_ICON[t.status||"planned"], 13)}${STATUS_TEXT[t.status||"planned"]}</button>
             ${t.desc?`<div class="desc">${md(t.desc)}</div>`:""}
           </li>`).join("")}
         </ul>
@@ -190,29 +196,64 @@ function renderCalc() {
   compute();
 }
 
+/* Pure budget math, shared by the live calculator (popup) and the read-only
+   summary card (Overview) — same numbers, two presentations. */
+function computeTotals({ pax, kmpl, fuel, km, hotel, nights, food, tolls, entry, camp, misc }) {
+  pax = Math.max(1, pax);
+  const litres = km / (kmpl || 1);
+  const fuelCost = litres * fuel;
+  const stay = hotel * nights;
+  const foodCost = food * pax * (nights + 1);
+  const entryCost = entry * pax;
+  const campCost = camp * pax;
+  const total = fuelCost + stay + foodCost + entryCost + campCost + tolls + misc;
+  return { total, fuelCost, stay, foodCost, entryCost, campCost, litres, pax, nights, km };
+}
+
 function compute() {
   const g = id => parseFloat($("#f_"+id).value) || 0;
-  const pax = Math.max(1, g("pax"));
-  const litres = g("km") / (g("kmpl") || 1);
-  const fuel   = litres * g("fuel");
-  const stay   = g("hotel") * g("nights");
-  const food   = g("food") * pax * (g("nights") + 1);
-  const entry  = g("entry") * pax;
-  const camp   = g("camp")  * pax;
-  const total  = fuel + stay + food + entry + camp + g("tolls") + g("misc");
+  const r = computeTotals({
+    pax: g("pax"), kmpl: g("kmpl"), fuel: g("fuel"), km: g("km"),
+    hotel: g("hotel"), nights: g("nights"), food: g("food"),
+    tolls: g("tolls"), entry: g("entry"), camp: g("camp"), misc: g("misc"),
+  });
 
   const R = n => "₹" + Math.round(n).toLocaleString("en-IN");
   const stats = [
-    ["Total trip cost", R(total), `${pax} travellers, ${g("nights")} nights`],
-    ["Per person",      R(total/pax), "all-in"],
-    ["Petrol",          R(fuel), `${litres.toFixed(0)} L · ${(litres/45).toFixed(1)} full tanks`],
-    ["Fuel per person", R(fuel/pax), "the big win of travelling three"],
-    ["Stays",           R(stay), `${R(g("hotel"))}/night`],
-    ["Food",            R(food), `${R(g("food"))}/person/day`],
-    ["Cost per km",     "₹" + (total/g("km")).toFixed(1), "all-in, whole car"]
+    ["Total trip cost", R(r.total), `${r.pax} travellers, ${r.nights} nights`],
+    ["Per person",      R(r.total/r.pax), "all-in"],
+    ["Petrol",          R(r.fuelCost), `${r.litres.toFixed(0)} L · ${(r.litres/45).toFixed(1)} full tanks`],
+    ["Fuel per person", R(r.fuelCost/r.pax), "the big win of travelling three"],
+    ["Stays",           R(r.stay), `${R(g("hotel"))}/night`],
+    ["Food",            R(r.foodCost), `${R(g("food"))}/person/day`],
+    ["Cost per km",     "₹" + (r.total/r.km).toFixed(1), "all-in, whole car"]
   ];
   $("#calcOut").innerHTML = stats.map(([k,v,n])=>
     `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`).join("");
+}
+
+/* ---- Budget summary card (Overview) — same math, the stored defaults,
+   read-only. The interactive calculator lives in the floating menu. ---- */
+const DEFAULT_KMPL = 17.5;
+
+function renderBudgetSummary() {
+  const d = TRIP.prices.defaults;
+  const km = TRIP.legs.reduce((a,l)=>a+l[2],0);
+  const r = computeTotals({
+    pax: d.pax, kmpl: DEFAULT_KMPL, fuel: TRIP.prices.blended, km,
+    hotel: d.hotelPerNight, nights: d.nights, food: d.foodPerPersonDay,
+    tolls: d.tolls, entry: d.entriesPerPerson, camp: d.campPerPerson, misc: d.misc,
+  });
+  const R = n => "₹" + Math.round(n).toLocaleString("en-IN");
+  const statTile = (ic, k, v, n) => `<div class="stat"><div class="stat-ico">${icon(ic, 14)}</div><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`;
+  $("#budgetTileSub").textContent = `${r.pax} travellers · ${r.nights} nights · ${DEFAULT_KMPL} km/L assumed`;
+  $("#budgetSummaryBody").innerHTML = `
+    <div class="out">
+      ${statTile("wallet", "Total trip cost", R(r.total), "all travellers, whole trip")}
+      ${statTile("person", "Per person", R(r.total/r.pax), "all-in")}
+      ${statTile("fuel", "Fuel", R(r.fuelCost), `${r.litres.toFixed(0)} L`)}
+      ${statTile("bed", "Stays", R(r.stay), `₹${d.hotelPerNight}/night`)}
+    </div>`;
 }
 
 /* ============================================================================
@@ -328,4 +369,5 @@ function loadPhotos(box) {
 function renderAll() {
   renderHero(); renderMap(); renderLedger(); renderDays(); renderTables();
   renderVariants(); renderNotes(); renderSources(); renderCalc(); renderChecklist();
+  renderBudgetSummary();
 }

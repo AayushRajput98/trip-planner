@@ -297,6 +297,41 @@ footer a{color:var(--gold)}
 .cat-ico{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
          border-radius:6px;background:var(--sand);color:var(--rust);margin-right:6px;vertical-align:-5px}
 
+/* ---- History (version timeline + trash) ---- */
+.histsub{font-size:.82rem;color:var(--muted);max-width:420px}
+.histswitch{margin:0 0 18px;display:inline-flex}
+.countbadge{background:var(--rust);color:#fff;border-radius:20px;font-size:.68rem;font-weight:700;
+            padding:1px 7px;margin-left:6px}
+.histfilter{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+.chipbtn{background:var(--card);border:1px solid var(--line);color:var(--muted);font:600 .78rem/1 var(--font);
+         padding:6px 13px;border-radius:20px;cursor:pointer}
+.chipbtn:hover{border-color:var(--gold)}
+.chipbtn.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.histempty{color:var(--muted);text-align:center;padding:34px 16px;font-size:.9rem}
+
+.tl-row{display:flex;gap:14px;padding:16px 18px}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex:none;margin-top:7px}
+.tl-body{flex:1;min-width:0}
+.tl-top{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.tl-avatar{width:22px;height:22px;font-size:.65rem}
+.tl-badge{border:1px solid;font-weight:700}
+.tl-time{color:var(--muted);white-space:nowrap}
+.tl-summary{margin-top:7px;font-weight:600;font-size:.92rem}
+.tl-message{margin-top:4px;font-size:.86rem;color:var(--muted);font-style:italic}
+.tl-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.tl-diff{margin-top:10px;padding:10px 12px;background:var(--sand);border-radius:8px;font-size:.82rem;
+         font-family:monospace;overflow-x:auto}
+.diffline{padding:2px 0;white-space:pre-wrap;word-break:break-word}
+.diffline.added{color:var(--green)}
+.diffline.removed{color:var(--warn);text-decoration:line-through}
+.diffline.changed{color:var(--rust)}
+
+.trash-card{display:flex;flex-direction:column;gap:6px}
+.trash-label{font-weight:600;font-size:.9rem}
+
+.btn.small{padding:5px 12px;font-size:.78rem;border-radius:7px}
+.notefield{margin-top:2px;padding-top:12px;border-top:1px solid var(--line)}
+
 @media print{
   nav,.iconbtn,.icon-btn,.hero svg,.editbar,.syncbar{display:none}
   .daybody{display:block!important}

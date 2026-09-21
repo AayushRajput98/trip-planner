@@ -17,9 +17,16 @@ from typing import Any
 from mcp.server.auth.settings import AuthSettings, ClientRegistrationOptions, RevocationOptions
 from mcp.server.mcpserver import MCPServer
 
+from . import edit_context, versioning
 from .config import PUBLIC_BASE_URL
 from .oauth.provider import TripOAuthProvider, handle_consent
 from .services import trip_service
+
+RESTORE_ITEM_FN = {
+    "days": lambda item: trip_service.add_day(item, op="restore_item"),
+    "checklist": lambda item: trip_service.restore_checklist_item(item),
+    "expenses": lambda item: trip_service.add_expense(item, op="restore_item"),
+}
 
 RESOURCE_URL = f"{PUBLIC_BASE_URL}/mcp"
 
@@ -31,7 +38,12 @@ mcp = MCPServer(
         "Tools for reading and editing a family road-trip itinerary: trip meta, budget "
         "config, day-by-day timetable (with a planned/visited/skipped status per stop), "
         "food/stay/fuel/variant/notes reference tables, a packing checklist, and an "
-        "expense log. Call get_trip() first to see the whole plan before editing."
+        "expense log. Call get_trip() first to see the whole plan before editing. Nothing "
+        "is ever destroyed: every edit (including deletes) becomes a new version, and "
+        "every mutating tool takes an optional `message` explaining the change, shown in "
+        "the trip's History. Use list_versions/get_version/restore_version to browse and "
+        "roll back a whole resource, or list_recently_deleted/restore_deleted_item to "
+        "bring back one deleted day/checklist item/expense without touching anything else."
     ),
     auth_server_provider=oauth_provider,
     auth=AuthSettings(
@@ -62,39 +74,49 @@ def get_day(n: str) -> dict:
 
 
 @mcp.tool()
-def update_day(n: str, patch: dict[str, Any]) -> dict:
+def update_day(n: str, patch: dict[str, Any], message: str | None = None) -> dict:
     """Merge `patch` into the day with id `n` (e.g. {"title": "..."} or
     {"tl": [...]} to replace the whole timetable). Only given keys change;
-    set a key to null to delete it (the day's own "n" can't be deleted)."""
-    return trip_service.update_day(n, patch)
+    set a key to null to delete it (the day's own "n" can't be deleted).
+    `message` is an optional note on why, shown in the trip's History."""
+    with edit_context.editing(actor="Claude", message=message):
+        return trip_service.update_day(n, patch)
 
 
 @mcp.tool()
-def add_day(day: dict[str, Any]) -> dict:
+def add_day(day: dict[str, Any], message: str | None = None) -> dict:
     """Append a new day to the end of the list. Must include a unique "n"
-    (e.g. "Day 9"). To insert it somewhere else, or to restore a day that was
-    just deleted, follow up with reorder_days to fix the ordering."""
-    return trip_service.add_day(day)
+    (e.g. "Day 9"). To insert it somewhere else, follow up with reorder_days
+    to fix the ordering. To bring back a day that was just deleted, prefer
+    restore_deleted_item over re-typing it by hand. `message` is an optional
+    note on why, shown in the trip's History."""
+    with edit_context.editing(actor="Claude", message=message):
+        return trip_service.add_day(day)
 
 
 @mcp.tool()
-def delete_day(n: str) -> dict:
-    """Remove the day with id `n`."""
-    trip_service.delete_day(n)
+def delete_day(n: str, message: str | None = None) -> dict:
+    """Remove the day with id `n`. Nothing is actually destroyed — it can be
+    brought back with restore_deleted_item("days", n). `message` is an
+    optional note on why, shown in the trip's History."""
+    with edit_context.editing(actor="Claude", message=message):
+        trip_service.delete_day(n)
     return {"ok": True}
 
 
 @mcp.tool()
-def reorder_days(order: list[str]) -> list[dict]:
+def reorder_days(order: list[str], message: str | None = None) -> list[dict]:
     """Reorder days. `order` must list every existing day id exactly once."""
-    return trip_service.reorder_days(order)
+    with edit_context.editing(actor="Claude", message=message):
+        return trip_service.reorder_days(order)
 
 
 @mcp.tool()
-def set_timetable_status(day_n: str, index: int, status: str) -> dict:
+def set_timetable_status(day_n: str, index: int, status: str, message: str | None = None) -> dict:
     """Mark one timetable entry (by its 0-based index within that day) as
     "planned", "visited", or "skipped"."""
-    return trip_service.set_timetable_status(day_n, index, status)
+    with edit_context.editing(actor="Claude", message=message):
+        return trip_service.set_timetable_status(day_n, index, status)
 
 
 @mcp.tool()
@@ -104,10 +126,12 @@ def get_meta() -> dict:
 
 
 @mcp.tool()
-def update_meta(patch: dict[str, Any]) -> dict:
+def update_meta(patch: dict[str, Any], message: str | None = None) -> dict:
     """Merge `patch` into the trip meta (title/kicker/sub/pills). Set a key
-    to null to delete it."""
-    return trip_service.update_meta(patch)
+    to null to delete it. `message` is an optional note on why, shown in the
+    trip's History."""
+    with edit_context.editing(actor="Claude", message=message):
+        return trip_service.update_meta(patch)
 
 
 @mcp.tool()
@@ -117,10 +141,12 @@ def get_budget() -> dict:
 
 
 @mcp.tool()
-def update_budget(patch: dict[str, Any]) -> dict:
+def update_budget(patch: dict[str, Any], message: str | None = None) -> dict:
     """Merge `patch` into the budget config (vehicle/prices/legs). Set a key
-    (including inside "prices" or "prices.defaults") to null to delete it."""
-    return trip_service.update_budget(patch)
+    (including inside "prices" or "prices.defaults") to null to delete it.
+    `message` is an optional note on why, shown in the trip's History."""
+    with edit_context.editing(actor="Claude", message=message):
+        return trip_service.update_budget(patch)
 
 
 @mcp.tool()
@@ -131,10 +157,12 @@ def get_reference(section: str) -> Any:
 
 
 @mcp.tool()
-def update_reference(section: str, data: Any) -> Any:
+def update_reference(section: str, data: Any, message: str | None = None) -> Any:
     """Replace one reference section wholesale with `data`. `section` is one
-    of: food, stays, fuelStops, variants, notes, sources, photoUrls, photoWiki."""
-    return trip_service.update_reference(section, data)
+    of: food, stays, fuelStops, variants, notes, sources, photoUrls, photoWiki.
+    `message` is an optional note on why, shown in the trip's History."""
+    with edit_context.editing(actor="Claude", message=message):
+        return trip_service.update_reference(section, data)
 
 
 @mcp.tool()
@@ -144,21 +172,26 @@ def get_checklist() -> list[dict]:
 
 
 @mcp.tool()
-def add_checklist_item(text: str) -> dict:
+def add_checklist_item(text: str, message: str | None = None) -> dict:
     """Add a new packing checklist item."""
-    return trip_service.add_checklist_item(text)
+    with edit_context.editing(actor="Claude", message=message):
+        return trip_service.add_checklist_item(text)
 
 
 @mcp.tool()
-def set_checklist_item_done(item_id: str, done: bool) -> dict:
+def set_checklist_item_done(item_id: str, done: bool, message: str | None = None) -> dict:
     """Tick or untick a checklist item by its id."""
-    return trip_service.set_checklist_item(item_id, {"done": done})
+    with edit_context.editing(actor="Claude", message=message):
+        return trip_service.set_checklist_item(item_id, {"done": done})
 
 
 @mcp.tool()
-def remove_checklist_item(item_id: str) -> dict:
-    """Remove a checklist item by its id."""
-    trip_service.remove_checklist_item(item_id)
+def remove_checklist_item(item_id: str, message: str | None = None) -> dict:
+    """Remove a checklist item by its id. Nothing is actually destroyed — it
+    can be brought back with restore_deleted_item("checklist", item_id).
+    `message` is an optional note on why, shown in the trip's History."""
+    with edit_context.editing(actor="Claude", message=message):
+        trip_service.remove_checklist_item(item_id)
     return {"ok": True}
 
 
@@ -177,9 +210,12 @@ def add_expense(
     category: str | None = None,
     note: str | None = None,
     dayRef: str | None = None,
+    message: str | None = None,
 ) -> dict:
     """Log an expense: date (YYYY-MM-DD), amount, who paid, and optionally
-    currency, a category, a note, and which day it belongs to."""
+    currency, a category, a note, and which day it belongs to. `message` is
+    a separate optional note on *why*, shown in the trip's History (not the
+    same as `note`, which is part of the expense record itself)."""
     entry = {"date": date, "amount": amount, "paidBy": paidBy, "currency": currency}
     if category is not None:
         entry["category"] = category
@@ -187,14 +223,71 @@ def add_expense(
         entry["note"] = note
     if dayRef is not None:
         entry["dayRef"] = dayRef
-    return trip_service.add_expense(entry)
+    with edit_context.editing(actor="Claude", message=message):
+        return trip_service.add_expense(entry)
 
 
 @mcp.tool()
-def delete_expense(expense_id: str) -> dict:
-    """Delete a logged expense by its id."""
-    trip_service.delete_expense(expense_id)
+def delete_expense(expense_id: str, message: str | None = None) -> dict:
+    """Delete a logged expense by its id. Nothing is actually destroyed — it
+    can be brought back with restore_deleted_item("expenses", expense_id).
+    `message` is an optional note on why, shown in the trip's History."""
+    with edit_context.editing(actor="Claude", message=message):
+        trip_service.delete_expense(expense_id)
     return {"ok": True}
+
+
+@mcp.tool()
+def list_versions(resource: str, limit: int = 20) -> list[dict]:
+    """List recent versions of one resource (meta, budget, days, reference,
+    checklist, or expenses), newest first — version number, timestamp,
+    actor, what changed, and any message. Use get_version to see a version's
+    full content, or restore_version to roll back to one."""
+    return versioning.list_history(resource, limit=limit)
+
+
+@mcp.tool()
+def get_version(resource: str, version: int) -> Any:
+    """Get one version's full content, as it was at that point."""
+    return versioning.get_snapshot(resource, version)
+
+
+@mcp.tool()
+def restore_version(resource: str, version: int, message: str | None = None) -> Any:
+    """Roll `resource` back to a past version's full content. This creates a
+    new version rather than erasing anything in between — restoring is just
+    another edit. If you only want to bring back one deleted day/checklist
+    item/expense without touching unrelated edits made since, use
+    restore_deleted_item instead."""
+    with edit_context.editing(actor="Claude", message=message):
+        snapshot = versioning.get_snapshot(resource, version)
+        return trip_service.restore_resource(resource, snapshot)
+
+
+@mcp.tool()
+def list_recently_deleted() -> list[dict]:
+    """List every individually deleted day, checklist item, and expense that
+    isn't currently in the trip — each with its last-known content and when/
+    who deleted it. Restore one with restore_deleted_item."""
+    rows = []
+    for resource in RESTORE_ITEM_FN:
+        rows.extend({"resource": resource, **row} for row in versioning.find_deleted_items(resource))
+    rows.sort(key=lambda r: r["deletedAt"], reverse=True)
+    return rows
+
+
+@mcp.tool()
+def restore_deleted_item(resource: str, item_id: str, message: str | None = None) -> dict:
+    """Bring back one deleted item by resource ("days", "checklist", or
+    "expenses") and its id (a day's `n`, or a checklist/expense `id` — see
+    list_recently_deleted). Fails if something new has since reused that id."""
+    if resource not in RESTORE_ITEM_FN:
+        raise ValueError(f"{resource!r} has no per-item trash (not a collection)")
+    for row in versioning.find_deleted_items(resource):
+        if str(row["id"]) == item_id:
+            with edit_context.editing(actor="Claude", message=message):
+                return RESTORE_ITEM_FN[resource](row["content"])
+    raise LookupError(f"No deleted item {item_id!r} in {resource!r}")
 
 
 def build_mcp_inner_app():

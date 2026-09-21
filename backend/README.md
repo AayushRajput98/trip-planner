@@ -29,6 +29,9 @@ AUTH_TOKEN=dev-secret DATA_DIR="$(pwd)/data" uvicorn app.main:app --reload --por
 Then point the frontend's `js/config.js` `API_BASE` at `http://127.0.0.1:8123` (already the
 default when the page is opened from `localhost`/`127.0.0.1`).
 
+Run the test suite with `pytest` from `backend/` — it never touches `data/`, each test gets its
+own throwaway temp directory.
+
 ## Deploy to Railway
 
 1. Create a new Railway project from this repo, root directory `backend/`.
@@ -107,13 +110,25 @@ as any MCP HTTP server). No `Authorization` header, or a garbage one, should 401
 app/
   main.py              FastAPI app: CORS, routers, mounts the MCP+OAuth app at the root
   config.py            env vars: DATA_DIR, AUTH_TOKEN, ALLOWED_ORIGINS, PUBLIC_BASE_URL
-  auth.py              shared-bearer-token dependency (REST API writes) + check_token() helper
+  auth.py              shared-bearer-token dependency (REST API writes) + check_token() helper;
+                       also captures X-Editor-Name/X-Edit-Message into edit_context per request
+  edit_context.py      who's editing + their optional note, for the duration of one request/tool
+                       call — read by versioning.record_version so trip_service doesn't need an
+                       actor/message parameter threaded through every function
+  errors.py            NotFoundError/ValidationError, shared by trip_service and versioning
+  resources.py         the six resource names <-> their JSON files, kind (dict/list), id key
+  versioning.py        version history: record/list/diff/restore a resource, "recently deleted"
+                       trash for the three collections (days/checklist/expenses)
   storage.py           atomic JSON file read/write, ensure_seeded() for a fresh Volume
   models.py            pydantic schemas
-  services/trip_service.py   all business logic (used by both routers/ and mcp_server.py)
-  routers/             REST endpoints, one file per resource
+  services/trip_service.py   all business logic (used by both routers/ and mcp_server.py) — every
+                       write goes through _save(), which also calls versioning.record_version
+  routers/             REST endpoints, one file per resource, plus versions.py (history/restore)
   mcp_server.py         MCP tools + OAuth wiring (AuthSettings, the /consent custom route)
   oauth/provider.py     the OAuth authorization server: clients/codes/tokens, the /consent page
 data/                  the live JSON files (meta/budget/days/reference/checklist/expenses/oauth_*)
+data/versions/         one JSON array per resource: every past version, never trimmed
 scripts/migrate_from_markdown.py   one-off migration from the original trip-plan.md
+tests/                 pytest — versioning.py/trip_service directly, plus an HTTP smoke test
+                       through the real FastAPI app (run with `pytest` from backend/)
 ```

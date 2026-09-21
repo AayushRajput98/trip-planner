@@ -12,6 +12,8 @@ let modalSaveHandler = null;
 function openModal(title, bodyHtml, onSave) {
   $("#modalTitle").textContent = title;
   $("#modalBody").innerHTML = bodyHtml;
+  $("#modalMessage").value = "";
+  setNextMessage(null); // clear any stale note left over from a skipped edit
   modalSaveHandler = onSave;
   $("#genericModal").hidden = false;
 }
@@ -131,6 +133,7 @@ function wireEditor() {
   $("#btnModalSave").addEventListener("click", async () => {
     if (!modalSaveHandler) return;
     try {
+      setNextMessage($("#modalMessage").value);
       await modalSaveHandler();
       closeModal();
       await refreshAndRerender();
@@ -170,7 +173,7 @@ function wireEditor() {
     const delBtn = e.target.closest(".deletedaybtn");
     if (delBtn) {
       e.stopPropagation();
-      if (!(await confirmDialog(`Delete ${delBtn.dataset.day}? This can't be undone.`))) return;
+      if (!(await confirmDialog(`Delete ${delBtn.dataset.day}? You can bring it back later from History → Recently deleted.`))) return;
       try {
         await Api.deleteDay(delBtn.dataset.day);
         await refreshAndRerender();

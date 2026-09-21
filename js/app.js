@@ -3,7 +3,7 @@
    wiring, the person picker, settings modal.
    ========================================================================== */
 let TRIP = null;
-const TABS = ["overview", "itinerary", "expenses"];
+const TABS = ["overview", "itinerary", "expenses", "history"];
 
 function wireTabs() {
   document.querySelectorAll(".tabbtn").forEach(btn => {
@@ -138,6 +138,7 @@ async function boot() {
   wireChecklist();
   wireEditor();
   wireExpenses();
+  wireVersions();
 
   const first = $("#day0");
   if (first) { first.classList.add("open"); loadPhotos(first.querySelector(".photos")); }

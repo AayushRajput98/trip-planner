@@ -71,7 +71,7 @@ function wireExpenses() {
   $("#expenseTable").addEventListener("click", async e => {
     const btn = e.target.closest(".delexpensebtn");
     if (!btn) return;
-    if (!(await confirmDialog("Delete this expense?"))) return;
+    if (!(await confirmDialog("Delete this expense? You can bring it back later from History → Recently deleted."))) return;
     try {
       await Api.deleteExpense(btn.dataset.id);
       await loadExpenses();

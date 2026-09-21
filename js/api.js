@@ -22,10 +22,15 @@ function toast(message, isError = false) {
 function confirmDialog(message) {
   return new Promise(resolve => {
     const modal = document.getElementById("confirmModal");
+    const noteInput = document.getElementById("confirmMessage");
     document.getElementById("confirmMsg").textContent = message;
+    noteInput.value = "";
+    setNextMessage(null); // clear any stale note left over from a skipped edit
     modal.hidden = false;
     const cleanup = result => {
       modal.hidden = true;
+      // setNextMessage lives in this same file, defined below.
+      if (result) setNextMessage(noteInput.value);
       yesBtn.removeEventListener("click", onYes);
       noBtn.removeEventListener("click", onNo);
       resolve(result);
@@ -72,6 +77,14 @@ function setPerson(name) {
   catch (e) { /* ignore */ }
 }
 
+/* One-shot "why" note for the next write — set right before a save/delete
+   that has a Note field, consumed (and cleared) by the very next api() call
+   so no individual Api.* call site needs its own message parameter. */
+let pendingMessage = null;
+function setNextMessage(msg) {
+  pendingMessage = (msg || "").trim() || null;
+}
+
 async function api(path, { method = "GET", body, auth = method !== "GET" } = {}) {
   const headers = {};
   if (body !== undefined) headers["Content-Type"] = "application/json";
@@ -79,6 +92,10 @@ async function api(path, { method = "GET", body, auth = method !== "GET" } = {})
     const token = getSettings().token;
     if (!token) throw new Error("No shared token set — open Settings and paste it first.");
     headers.Authorization = `Bearer ${token}`;
+    headers["X-Editor-Name"] = getPerson() || "Someone";
+    // Header values must stay ASCII-safe — encode in case a note has ₹, accents, etc.
+    if (pendingMessage) headers["X-Edit-Message"] = encodeURIComponent(pendingMessage);
+    pendingMessage = null;
   }
   const res = await fetch(API_BASE + path, {
     method,
@@ -120,4 +137,12 @@ const Api = {
   listExpenses: () => api("/api/expenses"),
   addExpense: entry => api("/api/expenses", { method: "POST", body: entry }),
   deleteExpense: id => api(`/api/expenses/${id}`, { method: "DELETE" }),
+
+  getVersionFeed: (limit = 50) => api(`/api/versions/feed?limit=${limit}`),
+  getVersionHistory: resource => api(`/api/versions/${resource}`),
+  getVersionDiff: (resource, version) => api(`/api/versions/${resource}/${version}/diff`),
+  restoreVersion: (resource, version) => api(`/api/versions/${resource}/${version}/restore`, { method: "POST" }),
+  getTrash: () => api("/api/versions/trash"),
+  restoreTrashItem: (resource, id) =>
+    api(`/api/versions/trash/${resource}/${encodeURIComponent(id)}/restore`, { method: "POST" }),
 };

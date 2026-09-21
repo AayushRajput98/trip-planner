@@ -3,24 +3,26 @@ this module, so there is exactly one implementation of every read/write path."""
 import uuid
 from typing import Any
 
-from .. import storage
+from .. import storage, versioning
+from ..errors import NotFoundError, ValidationError
+from ..resources import RESOURCE_FILES
 
-META_FILE = "meta.json"
-BUDGET_FILE = "budget.json"
-DAYS_FILE = "days.json"
-REFERENCE_FILE = "reference.json"
-CHECKLIST_FILE = "checklist.json"
-EXPENSES_FILE = "expenses.json"
+META_FILE = RESOURCE_FILES["meta"]
+BUDGET_FILE = RESOURCE_FILES["budget"]
+DAYS_FILE = RESOURCE_FILES["days"]
+REFERENCE_FILE = RESOURCE_FILES["reference"]
+CHECKLIST_FILE = RESOURCE_FILES["checklist"]
+EXPENSES_FILE = RESOURCE_FILES["expenses"]
 
 REFERENCE_SECTIONS = {"food", "stays", "fuelStops", "variants", "notes", "sources", "photoUrls", "photoWiki"}
 
 
-class NotFoundError(Exception):
-    pass
-
-
-class ValidationError(Exception):
-    pass
+def _save(resource: str, filename: str, obj: Any, op: str) -> None:
+    """Write `obj` as the resource's new current content, then record it as
+    a new version — the single chokepoint every mutation in this module goes
+    through, so nothing ever just overwrites history away."""
+    storage.save_json(filename, obj)
+    versioning.record_version(resource, obj, op)
 
 
 def _merge_patch(target: dict, patch: dict, protected_keys: set[str] = frozenset()) -> None:
@@ -47,7 +49,7 @@ def get_meta() -> dict:
 def update_meta(patch: dict) -> dict:
     meta = get_meta()
     _merge_patch(meta, patch)
-    storage.save_json(META_FILE, meta)
+    _save("meta", META_FILE, meta, "update_meta")
     return meta
 
 
@@ -71,7 +73,7 @@ def update_budget(patch: dict) -> dict:
             budget.pop(key, None)
         else:
             budget[key] = val
-    storage.save_json(BUDGET_FILE, budget)
+    _save("budget", BUDGET_FILE, budget, "update_budget")
     return budget
 
 
@@ -92,14 +94,14 @@ def get_day(n: str) -> dict:
     return days[_find_day_index(days, n)]
 
 
-def add_day(day: dict) -> dict:
+def add_day(day: dict, op: str = "add_day") -> dict:
     days = list_days()
     if any(d.get("n") == day.get("n") for d in days):
         raise ValidationError(f"A day with n={day.get('n')!r} already exists")
     for entry in day.get("tl", []):
         entry.setdefault("status", "planned")
     days.append(day)
-    storage.save_json(DAYS_FILE, days)
+    _save("days", DAYS_FILE, days, op)
     return day
 
 
@@ -112,7 +114,7 @@ def update_day(n: str, patch: dict) -> dict:
             entry.setdefault("status", "planned")
     _merge_patch(day, patch, protected_keys={"n"})
     days[idx] = day
-    storage.save_json(DAYS_FILE, days)
+    _save("days", DAYS_FILE, days, "update_day")
     return day
 
 
@@ -120,7 +122,7 @@ def delete_day(n: str) -> None:
     days = list_days()
     idx = _find_day_index(days, n)
     days.pop(idx)
-    storage.save_json(DAYS_FILE, days)
+    _save("days", DAYS_FILE, days, "delete_day")
 
 
 def reorder_days(order: list[str]) -> list[dict]:
@@ -129,7 +131,7 @@ def reorder_days(order: list[str]) -> list[dict]:
     if set(order) != set(by_n.keys()):
         raise ValidationError("reorder_days: the given order must contain exactly the existing day ids")
     new_days = [by_n[n] for n in order]
-    storage.save_json(DAYS_FILE, new_days)
+    _save("days", DAYS_FILE, new_days, "reorder_days")
     return new_days
 
 
@@ -143,7 +145,7 @@ def set_timetable_status(day_n: str, index: int, status: str) -> dict:
     if index < 0 or index >= len(tl):
         raise NotFoundError(f"No timetable entry {index} on day {day_n!r}")
     tl[index]["status"] = status
-    storage.save_json(DAYS_FILE, days)
+    _save("days", DAYS_FILE, days, "set_timetable_status")
     return day
 
 
@@ -160,7 +162,7 @@ def update_reference(section: str, data: Any) -> Any:
         raise ValidationError(f"Unknown reference section: {section!r}")
     ref = storage.load_json(REFERENCE_FILE, {})
     ref[section] = data
-    storage.save_json(REFERENCE_FILE, ref)
+    _save("reference", REFERENCE_FILE, ref, "update_reference")
     return data
 
 
@@ -177,7 +179,7 @@ def add_checklist_item(text: str) -> dict:
     items = get_checklist()
     item = {"id": uuid.uuid4().hex[:8], "text": text, "done": False}
     items.append(item)
-    storage.save_json(CHECKLIST_FILE, items)
+    _save("checklist", CHECKLIST_FILE, items, "add_checklist_item")
     return item
 
 
@@ -186,7 +188,7 @@ def set_checklist_item(item_id: str, patch: dict) -> dict:
     for item in items:
         if item["id"] == item_id:
             item.update(patch)
-            storage.save_json(CHECKLIST_FILE, items)
+            _save("checklist", CHECKLIST_FILE, items, "set_checklist_item")
             return item
     raise NotFoundError(f"No checklist item {item_id!r}")
 
@@ -196,7 +198,18 @@ def remove_checklist_item(item_id: str) -> None:
     new_items = [i for i in items if i["id"] != item_id]
     if len(new_items) == len(items):
         raise NotFoundError(f"No checklist item {item_id!r}")
-    storage.save_json(CHECKLIST_FILE, new_items)
+    _save("checklist", CHECKLIST_FILE, new_items, "remove_checklist_item")
+
+
+def restore_checklist_item(item: dict) -> dict:
+    """Re-insert a full checklist item dict (from trash), preserving its
+    original id — add_checklist_item always mints a fresh one."""
+    items = get_checklist()
+    if any(i["id"] == item["id"] for i in items):
+        raise ValidationError(f"Checklist item {item['id']!r} already exists")
+    items.append(item)
+    _save("checklist", CHECKLIST_FILE, items, "restore_item")
+    return item
 
 
 # ---- expenses ---------------------------------------------------------------
@@ -209,12 +222,14 @@ def list_expenses(paid_by: str | None = None, day_ref: str | None = None) -> lis
     return expenses
 
 
-def add_expense(entry: dict) -> dict:
+def add_expense(entry: dict, op: str = "add_expense") -> dict:
     expenses = storage.load_json(EXPENSES_FILE, [])
     entry = dict(entry)
     entry["id"] = entry.get("id") or uuid.uuid4().hex[:8]
+    if any(e["id"] == entry["id"] for e in expenses):
+        raise ValidationError(f"Expense {entry['id']!r} already exists")
     expenses.append(entry)
-    storage.save_json(EXPENSES_FILE, expenses)
+    _save("expenses", EXPENSES_FILE, expenses, op)
     return entry
 
 
@@ -223,7 +238,19 @@ def delete_expense(expense_id: str) -> None:
     new_expenses = [e for e in expenses if e["id"] != expense_id]
     if len(new_expenses) == len(expenses):
         raise NotFoundError(f"No expense {expense_id!r}")
-    storage.save_json(EXPENSES_FILE, new_expenses)
+    _save("expenses", EXPENSES_FILE, new_expenses, "delete_expense")
+
+
+# ---- restore ---------------------------------------------------------------
+def restore_resource(resource: str, content: Any) -> Any:
+    """Write `content` (typically a past version's snapshot) as the new
+    current state for `resource`, through the same versioned save path as
+    any other edit — a whole-file restore is just another version, not a
+    special case."""
+    if resource not in RESOURCE_FILES:
+        raise ValidationError(f"Unknown resource: {resource!r}")
+    _save(resource, RESOURCE_FILES[resource], content, "restore")
+    return content
 
 
 # ---- aggregate --------------------------------------------------------------

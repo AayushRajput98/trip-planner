@@ -5,14 +5,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .config import ALLOWED_ORIGINS
+from .errors import NotFoundError, ValidationError
 from .mcp_server import build_mcp_inner_app
-from .routers import budget, checklist, days, expenses, meta, reference, trip
-from .services.trip_service import NotFoundError, ValidationError
+from .routers import budget, checklist, days, expenses, meta, reference, trip, versions
 from .storage import ensure_seeded
+from .versioning import ensure_baselines
 
 # On a brand-new Railway Volume (or any empty DATA_DIR), populate it from the
 # JSON files committed in the repo before anything tries to read from it.
 ensure_seeded()
+# Seed one "baseline" version per resource so history/restore always has a
+# starting point, even for data that existed before this feature shipped.
+ensure_baselines()
 
 # Mounting a Starlette sub-app does NOT forward ASGI "lifespan" events to it,
 # and the MCP session manager only starts inside its own lifespan context —
@@ -55,6 +59,7 @@ app.include_router(days.router)
 app.include_router(reference.router)
 app.include_router(checklist.router)
 app.include_router(expenses.router)
+app.include_router(versions.router)
 
 
 @app.get("/health")

@@ -81,11 +81,12 @@ Open `http://127.0.0.1:8080/index.html` — `js/config.js` already points at
 
 ## Connecting Claude to the trip (MCP)
 
-The backend also runs an MCP server at `/mcp` on the same Railway service, exposing 20 tools —
+The backend also runs an MCP server at `/mcp` on the same Railway service, exposing 25 tools —
 `get_trip`, `update_day`, `add_day`, `delete_day`, `reorder_days`, `set_timetable_status`,
 `get_meta`/`update_meta`, `get_budget`/`update_budget`, `get_reference`/`update_reference`,
-checklist CRUD, and expense CRUD — all backed by the same `trip_service.py` the REST API uses,
-so nothing an agent does can drift from what the page shows.
+checklist CRUD, expense CRUD, and `list_versions`/`get_version`/`restore_version`/
+`list_recently_deleted`/`restore_deleted_item` — all backed by the same `trip_service.py` the
+REST API uses, so nothing an agent does can drift from what the page shows.
 
 Add it as a custom connector in Claude Desktop, the Claude mobile app, claude.ai, or ChatGPT
 using the URL `https://<your-app>.up.railway.app/mcp` — each expects real OAuth for a remote
@@ -116,6 +117,13 @@ register → authorize → consent → token exchange sequence as curl commands.
   planned → visited → skipped.
 - **Expenses**: logged flatly (date, amount, who paid, category, note) with a running total per
   payer, in the Expenses section.
+- **Nothing is ever destroyed**: every edit — including deletes — is kept as a version, visible in
+  the **History** tab. There you can browse a full timeline per resource (with a diff and an
+  optional note on why the change was made) and restore any past version, or open "Recently
+  deleted" to bring back one deleted day/checklist item/expense on its own without reverting
+  anything else. Claude can do the same through MCP (`list_versions`, `restore_version`,
+  `list_recently_deleted`, `restore_deleted_item`), and every mutating MCP tool takes an optional
+  `message` explaining the change, the same as the page's "Note" field.
 
 ## Repo layout
 

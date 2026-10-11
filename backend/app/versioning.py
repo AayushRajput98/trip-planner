@@ -118,6 +118,12 @@ def _label(resource: str, item: dict) -> str:
         amount = item.get("amount")
         paid_by = item.get("paidBy") or "someone"
         return f"₹{amount} ({paid_by})" if amount is not None else "an expense"
+    if resource == "bookings":
+        return item.get("hotel") or "a booking"
+    if resource == "documents":
+        label = item.get("label") or "a document"
+        person = item.get("person")
+        return f"{label} ({person})" if person else label
     return str(item.get("id", "an item"))
 
 

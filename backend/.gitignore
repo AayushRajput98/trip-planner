@@ -2,3 +2,7 @@
 __pycache__/
 *.pyc
 .env
+# Runtime-generated version history / uploads from local dev — on Railway
+# these live on the mounted Volume (DATA_DIR), not in the repo.
+data/versions/
+data/uploads/

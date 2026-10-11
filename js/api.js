@@ -138,6 +138,35 @@ const Api = {
   addExpense: entry => api("/api/expenses", { method: "POST", body: entry }),
   deleteExpense: id => api(`/api/expenses/${id}`, { method: "DELETE" }),
 
+  listBookings: () => api("/api/bookings"),
+  addBooking: entry => api("/api/bookings", { method: "POST", body: entry }),
+  updateBooking: (id, patch) => api(`/api/bookings/${id}`, { method: "PUT", body: patch }),
+  deleteBooking: id => api(`/api/bookings/${id}`, { method: "DELETE" }),
+
+  listDocuments: () => api("/api/documents"),
+  addDocument: entry => api("/api/documents", { method: "POST", body: entry }),
+  deleteDocument: id => api(`/api/documents/${id}`, { method: "DELETE" }),
+
+  /* Multipart upload — can't go through api()'s JSON-only fetch wrapper,
+     since the browser needs to set its own multipart boundary header. */
+  uploadFile: async file => {
+    const token = getSettings().token;
+    if (!token) throw new Error("No shared token set — open Settings and paste it first.");
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch(API_BASE + "/api/uploads", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "X-Editor-Name": getPerson() || "Someone" },
+      body: fd,
+    });
+    if (!res.ok) {
+      let detail = res.statusText;
+      try { detail = (await res.json()).detail || detail; } catch (e) { /* ignore */ }
+      throw new Error(`Upload failed (${res.status}): ${detail}`);
+    }
+    return res.json();
+  },
+
   getVersionFeed: (limit = 50) => api(`/api/versions/feed?limit=${limit}`),
   getVersionHistory: resource => api(`/api/versions/${resource}`),
   getVersionDiff: (resource, version) => api(`/api/versions/${resource}/${version}/diff`),

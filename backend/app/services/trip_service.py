@@ -13,6 +13,8 @@ DAYS_FILE = RESOURCE_FILES["days"]
 REFERENCE_FILE = RESOURCE_FILES["reference"]
 CHECKLIST_FILE = RESOURCE_FILES["checklist"]
 EXPENSES_FILE = RESOURCE_FILES["expenses"]
+BOOKINGS_FILE = RESOURCE_FILES["bookings"]
+DOCUMENTS_FILE = RESOURCE_FILES["documents"]
 
 REFERENCE_SECTIONS = {"food", "stays", "fuelStops", "variants", "notes", "sources", "photoUrls", "photoWiki"}
 
@@ -239,6 +241,65 @@ def delete_expense(expense_id: str) -> None:
     if len(new_expenses) == len(expenses):
         raise NotFoundError(f"No expense {expense_id!r}")
     _save("expenses", EXPENSES_FILE, new_expenses, "delete_expense")
+
+
+# ---- bookings ---------------------------------------------------------------
+def list_bookings() -> list[dict]:
+    return storage.load_json(BOOKINGS_FILE, [])
+
+
+def add_booking(entry: dict, op: str = "add_booking") -> dict:
+    bookings = storage.load_json(BOOKINGS_FILE, [])
+    entry = dict(entry)
+    entry["id"] = entry.get("id") or uuid.uuid4().hex[:8]
+    if any(b["id"] == entry["id"] for b in bookings):
+        raise ValidationError(f"Booking {entry['id']!r} already exists")
+    bookings.append(entry)
+    _save("bookings", BOOKINGS_FILE, bookings, op)
+    return entry
+
+
+def update_booking(booking_id: str, patch: dict) -> dict:
+    bookings = storage.load_json(BOOKINGS_FILE, [])
+    for i, b in enumerate(bookings):
+        if b["id"] == booking_id:
+            _merge_patch(b, patch, protected_keys={"id"})
+            bookings[i] = b
+            _save("bookings", BOOKINGS_FILE, bookings, "update_booking")
+            return b
+    raise NotFoundError(f"No booking {booking_id!r}")
+
+
+def delete_booking(booking_id: str) -> None:
+    bookings = storage.load_json(BOOKINGS_FILE, [])
+    new_bookings = [b for b in bookings if b["id"] != booking_id]
+    if len(new_bookings) == len(bookings):
+        raise NotFoundError(f"No booking {booking_id!r}")
+    _save("bookings", BOOKINGS_FILE, new_bookings, "delete_booking")
+
+
+# ---- documents (per-person ID uploads for hotel check-in) ------------------
+def list_documents() -> list[dict]:
+    return storage.load_json(DOCUMENTS_FILE, [])
+
+
+def add_document(entry: dict, op: str = "add_document") -> dict:
+    documents = storage.load_json(DOCUMENTS_FILE, [])
+    entry = dict(entry)
+    entry["id"] = entry.get("id") or uuid.uuid4().hex[:8]
+    if any(d["id"] == entry["id"] for d in documents):
+        raise ValidationError(f"Document {entry['id']!r} already exists")
+    documents.append(entry)
+    _save("documents", DOCUMENTS_FILE, documents, op)
+    return entry
+
+
+def delete_document(document_id: str) -> None:
+    documents = storage.load_json(DOCUMENTS_FILE, [])
+    new_documents = [d for d in documents if d["id"] != document_id]
+    if len(new_documents) == len(documents):
+        raise NotFoundError(f"No document {document_id!r}")
+    _save("documents", DOCUMENTS_FILE, new_documents, "delete_document")
 
 
 # ---- restore ---------------------------------------------------------------

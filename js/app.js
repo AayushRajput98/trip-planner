@@ -3,14 +3,27 @@
    wiring, the person picker, settings modal.
    ========================================================================== */
 let TRIP = null;
-const TABS = ["overview", "itinerary", "expenses", "history"];
+const TABS = ["overview", "itinerary", "expenses", "bookings", "history"];
 
 function wireTabs() {
-  document.querySelectorAll(".tabbtn").forEach(btn => {
+  // Scoped to the top nav — the History sub-tabs (Timeline/Trash) reuse the
+  // same .tabbtn class for styling and have their own listener in
+  // versions.js; without this scoping both listeners fire on those clicks.
+  document.querySelectorAll("#navbar .tabbtn").forEach(btn => {
     btn.addEventListener("click", () => {
       const target = btn.dataset.tab;
-      TABS.forEach(t => { document.getElementById("tab-" + t).hidden = (t !== target); });
-      document.querySelectorAll(".tabbtn").forEach(b => b.classList.toggle("on", b === btn));
+      TABS.forEach(t => {
+        const panel = document.getElementById("tab-" + t);
+        if (t === target) {
+          panel.hidden = false;
+          panel.classList.remove("tab-enter");
+          void panel.offsetWidth; // force reflow so the animation re-triggers on repeat clicks
+          panel.classList.add("tab-enter");
+        } else {
+          panel.hidden = true;
+        }
+      });
+      document.querySelectorAll("#navbar .tabbtn").forEach(b => b.classList.toggle("on", b === btn));
     });
   });
 }
@@ -138,12 +151,14 @@ async function boot() {
   wireChecklist();
   wireEditor();
   wireExpenses();
+  wireBookings();
   wireVersions();
 
   const first = $("#day0");
   if (first) { first.classList.add("open"); loadPhotos(first.querySelector(".photos")); }
 
   loadExpenses().catch(e => console.error("expenses load failed", e));
+  loadBookingsData().catch(e => console.error("bookings load failed", e));
 }
 
 boot();

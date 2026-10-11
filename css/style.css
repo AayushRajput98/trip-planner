@@ -348,3 +348,72 @@ footer a{color:var(--gold)}
   .dayhead{padding:11px 13px}
   .editbar{flex-direction:column}
 }
+
+/* ============================================================================
+   SECTION 3 — MOTION
+   A little life, applied consistently rather than everywhere: tab switches,
+   modals, toasts and cards all move the same way. Respects reduced-motion.
+   ========================================================================== */
+@keyframes tabIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes modalIn{from{opacity:0;transform:translateY(-10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes backdropIn{from{opacity:0}to{opacity:1}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+
+.tabpanel.tab-enter{animation:tabIn .32s ease both}
+.modal-backdrop{animation:backdropIn .18s ease both}
+.modal-backdrop .modal{animation:modalIn .22s cubic-bezier(.2,.7,.3,1) both}
+.toast{animation:toastIn .25s ease both}
+.day,.card,.quick-tile,.person-card,.stat,.booking-card,.doc-card{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.card:hover,.booking-card:hover,.doc-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.06)}
+.dayhead,.icon-btn,.btn,.chipbtn,.pill{transition:background .15s ease,color .15s ease,border-color .15s ease,transform .12s ease}
+.btn:active{transform:scale(.97)}
+.icon-btn:active{transform:scale(.92)}
+.zero-state,.settle-rows,.doc-chips{animation:popIn .25s ease both}
+
+@media(prefers-reduced-motion:reduce){
+  .tabpanel.tab-enter,.modal-backdrop,.modal-backdrop .modal,.toast,.zero-state,.settle-rows,.doc-chips{animation:none}
+  .day,.card,.quick-tile,.person-card,.stat,.booking-card,.doc-card,.dayhead,.icon-btn,.btn,.chipbtn,.pill{transition:none}
+}
+
+/* ---- Trip dates (hero) ---- */
+.trip-dates{margin-top:12px;font-size:.84rem;color:#e9d9bd;display:flex;align-items:center;gap:7px}
+.trip-dates svg{flex:none;opacity:.85}
+.trip-dates .dates-n{opacity:.75;font-weight:400}
+.trip-dates .dates-empty{opacity:.75;font-style:italic}
+
+/* ---- Zero states (Expenses / Bookings) ---- */
+.zero-state{background:var(--card);border:1px dashed var(--line);border-radius:var(--radius);
+            padding:40px 24px;text-align:center;margin-bottom:16px}
+.zero-ico{width:56px;height:56px;border-radius:50%;background:var(--sand);color:var(--maroon);
+          display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.zero-title{font-weight:700;font-size:1.05rem;color:var(--ink);margin-bottom:6px}
+.zero-sub{font-size:.85rem;color:var(--muted);max-width:420px;margin:0 auto}
+
+/* ---- Settle up (Expenses card + Overview widget) ---- */
+.settle-rows{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.settle-row{display:flex;align-items:center;gap:8px;background:var(--sand);border-radius:8px;
+            padding:9px 12px;font-size:.86rem}
+.settle-rows.compact .settle-row{padding:7px 10px;font-size:.82rem}
+.settle-who{font-weight:700;color:var(--ink)}
+.settle-arrow{color:var(--muted);font-weight:700}
+.settle-amt{margin-left:auto;font-weight:700;color:var(--maroon);font-variant-numeric:tabular-nums}
+.settle-balanced{display:flex;align-items:center;gap:7px;color:var(--green);font-size:.88rem;padding:6px 0}
+
+/* ---- Bookings tab ---- */
+.doc-card{display:flex;flex-direction:column;gap:10px}
+.doc-chips{display:flex;flex-wrap:wrap;gap:7px;min-height:22px}
+.doc-chip{display:inline-flex;align-items:center;gap:6px;background:var(--sand);border-radius:16px;
+          padding:4px 6px 4px 10px;font-size:.78rem}
+.doc-chip a{display:inline-flex;align-items:center;gap:4px;color:var(--ink);font-weight:600}
+.doc-chip a:hover{text-decoration:none;color:var(--maroon)}
+.doc-chip-x{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;
+            border-radius:50%;border:none;background:none;color:var(--muted);cursor:pointer}
+.doc-chip-x:hover{background:var(--line);color:var(--ink)}
+.booking-card{display:flex;flex-direction:column}
+.booking-status{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);
+                background:var(--sand);color:var(--muted);border-radius:20px;padding:5px 12px;
+                font-size:.74rem;font-weight:700;cursor:pointer;flex:none}
+.booking-status.is-confirmed{color:var(--green);border-color:var(--green);background:#eef6f1}
+.booking-status.is-pending{color:var(--warn);border-color:var(--warn);background:#fdf3ec}
+body.dark .booking-status.is-confirmed,body.dark .booking-status.is-pending{background:var(--sand)}

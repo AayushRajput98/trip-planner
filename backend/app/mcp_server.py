@@ -26,6 +26,8 @@ RESTORE_ITEM_FN = {
     "days": lambda item: trip_service.add_day(item, op="restore_item"),
     "checklist": lambda item: trip_service.restore_checklist_item(item),
     "expenses": lambda item: trip_service.add_expense(item, op="restore_item"),
+    "bookings": lambda item: trip_service.add_booking(item, op="restore_item"),
+    "documents": lambda item: trip_service.add_document(item, op="restore_item"),
 }
 
 RESOURCE_URL = f"{PUBLIC_BASE_URL}/mcp"
@@ -37,13 +39,14 @@ mcp = MCPServer(
     instructions=(
         "Tools for reading and editing a family road-trip itinerary: trip meta, budget "
         "config, day-by-day timetable (with a planned/visited/skipped status per stop), "
-        "food/stay/fuel/variant/notes reference tables, a packing checklist, and an "
-        "expense log. Call get_trip() first to see the whole plan before editing. Nothing "
-        "is ever destroyed: every edit (including deletes) becomes a new version, and "
-        "every mutating tool takes an optional `message` explaining the change, shown in "
-        "the trip's History. Use list_versions/get_version/restore_version to browse and "
-        "roll back a whole resource, or list_recently_deleted/restore_deleted_item to "
-        "bring back one deleted day/checklist item/expense without touching anything else."
+        "food/stay/fuel/variant/notes reference tables, a packing checklist, an expense "
+        "log, hotel bookings, and a per-person shelf of ID document links. Call get_trip() "
+        "first to see the whole plan before editing. Nothing is ever destroyed: every edit "
+        "(including deletes) becomes a new version, and every mutating tool takes an "
+        "optional `message` explaining the change, shown in the trip's History. Use "
+        "list_versions/get_version/restore_version to browse and roll back a whole "
+        "resource, or list_recently_deleted/restore_deleted_item to bring back one deleted "
+        "day/checklist item/expense/booking/document without touching anything else."
     ),
     auth_server_provider=oauth_provider,
     auth=AuthSettings(
@@ -127,9 +130,9 @@ def get_meta() -> dict:
 
 @mcp.tool()
 def update_meta(patch: dict[str, Any], message: str | None = None) -> dict:
-    """Merge `patch` into the trip meta (title/kicker/sub/pills). Set a key
-    to null to delete it. `message` is an optional note on why, shown in the
-    trip's History."""
+    """Merge `patch` into the trip meta (title/kicker/sub/pills/startDate/
+    endDate — dates as YYYY-MM-DD). Set a key to null to delete it. `message`
+    is an optional note on why, shown in the trip's History."""
     with edit_context.editing(actor="Claude", message=message):
         return trip_service.update_meta(patch)
 
@@ -238,11 +241,91 @@ def delete_expense(expense_id: str, message: str | None = None) -> dict:
 
 
 @mcp.tool()
+def list_bookings() -> list[dict]:
+    """List hotel bookings: hotel, city, check-in/out dates, confirmed/
+    pending status, confirmation number, notes, and any uploaded receipts."""
+    return trip_service.list_bookings()
+
+
+@mcp.tool()
+def add_booking(
+    hotel: str,
+    city: str,
+    checkIn: str | None = None,
+    checkOut: str | None = None,
+    status: str = "pending",
+    confirmationNumber: str | None = None,
+    notes: str | None = None,
+    message: str | None = None,
+) -> dict:
+    """Add a hotel booking. `status` is "pending" or "confirmed". Dates are
+    YYYY-MM-DD. `message` is an optional note on why, shown in the trip's
+    History."""
+    entry: dict[str, Any] = {"hotel": hotel, "city": city, "status": status}
+    if checkIn is not None:
+        entry["checkIn"] = checkIn
+    if checkOut is not None:
+        entry["checkOut"] = checkOut
+    if confirmationNumber is not None:
+        entry["confirmationNumber"] = confirmationNumber
+    if notes is not None:
+        entry["notes"] = notes
+    with edit_context.editing(actor="Claude", message=message):
+        return trip_service.add_booking(entry)
+
+
+@mcp.tool()
+def update_booking(booking_id: str, patch: dict[str, Any], message: str | None = None) -> dict:
+    """Merge `patch` into the booking with this id (e.g. {"status": "confirmed"}).
+    Set a key to null to delete it. `message` is an optional note on why,
+    shown in the trip's History."""
+    with edit_context.editing(actor="Claude", message=message):
+        return trip_service.update_booking(booking_id, patch)
+
+
+@mcp.tool()
+def delete_booking(booking_id: str, message: str | None = None) -> dict:
+    """Delete a hotel booking by its id. Nothing is actually destroyed — it
+    can be brought back with restore_deleted_item("bookings", booking_id).
+    `message` is an optional note on why, shown in the trip's History."""
+    with edit_context.editing(actor="Claude", message=message):
+        trip_service.delete_booking(booking_id)
+    return {"ok": True}
+
+
+@mcp.tool()
+def list_documents() -> list[dict]:
+    """List the per-person shelf of ID document links (passport, Aadhaar,
+    etc.) kept for sharing with hotels at check-in."""
+    return trip_service.list_documents()
+
+
+@mcp.tool()
+def add_document(person: str, label: str, url: str, message: str | None = None) -> dict:
+    """Record one person's ID document as a link (this tool doesn't accept
+    file uploads — host the file somewhere and pass its URL). `label` is a
+    short name like "Passport" or "Aadhaar". `message` is an optional note
+    on why, shown in the trip's History."""
+    with edit_context.editing(actor="Claude", message=message):
+        return trip_service.add_document({"person": person, "label": label, "url": url, "name": label})
+
+
+@mcp.tool()
+def delete_document(document_id: str, message: str | None = None) -> dict:
+    """Delete an ID document by its id. Nothing is actually destroyed — it
+    can be brought back with restore_deleted_item("documents", document_id).
+    `message` is an optional note on why, shown in the trip's History."""
+    with edit_context.editing(actor="Claude", message=message):
+        trip_service.delete_document(document_id)
+    return {"ok": True}
+
+
+@mcp.tool()
 def list_versions(resource: str, limit: int = 20) -> list[dict]:
     """List recent versions of one resource (meta, budget, days, reference,
-    checklist, or expenses), newest first — version number, timestamp,
-    actor, what changed, and any message. Use get_version to see a version's
-    full content, or restore_version to roll back to one."""
+    checklist, expenses, bookings, or documents), newest first — version
+    number, timestamp, actor, what changed, and any message. Use get_version
+    to see a version's full content, or restore_version to roll back to one."""
     return versioning.list_history(resource, limit=limit)
 
 
@@ -266,9 +349,9 @@ def restore_version(resource: str, version: int, message: str | None = None) -> 
 
 @mcp.tool()
 def list_recently_deleted() -> list[dict]:
-    """List every individually deleted day, checklist item, and expense that
-    isn't currently in the trip — each with its last-known content and when/
-    who deleted it. Restore one with restore_deleted_item."""
+    """List every individually deleted day, checklist item, expense, booking,
+    and document that isn't currently in the trip — each with its last-known
+    content and when/who deleted it. Restore one with restore_deleted_item."""
     rows = []
     for resource in RESTORE_ITEM_FN:
         rows.extend({"resource": resource, **row} for row in versioning.find_deleted_items(resource))
@@ -278,9 +361,10 @@ def list_recently_deleted() -> list[dict]:
 
 @mcp.tool()
 def restore_deleted_item(resource: str, item_id: str, message: str | None = None) -> dict:
-    """Bring back one deleted item by resource ("days", "checklist", or
-    "expenses") and its id (a day's `n`, or a checklist/expense `id` — see
-    list_recently_deleted). Fails if something new has since reused that id."""
+    """Bring back one deleted item by resource ("days", "checklist",
+    "expenses", "bookings", or "documents") and its id (a day's `n`, or a
+    checklist/expense/booking/document `id` — see list_recently_deleted).
+    Fails if something new has since reused that id."""
     if resource not in RESTORE_ITEM_FN:
         raise ValueError(f"{resource!r} has no per-item trash (not a collection)")
     for row in versioning.find_deleted_items(resource):

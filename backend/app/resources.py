@@ -9,6 +9,8 @@ RESOURCE_FILES = {
     "reference": "reference.json",
     "checklist": "checklist.json",
     "expenses": "expenses.json",
+    "bookings": "bookings.json",
+    "documents": "documents.json",
 }
 
 RESOURCE_DEFAULTS = {
@@ -18,6 +20,8 @@ RESOURCE_DEFAULTS = {
     "reference": {},
     "checklist": [],
     "expenses": [],
+    "bookings": [],
+    "documents": [],
 }
 
 # "dict" resources diff by top-level key; "list" resources diff by item id.
@@ -28,6 +32,8 @@ RESOURCE_KIND = {
     "days": "list",
     "checklist": "list",
     "expenses": "list",
+    "bookings": "list",
+    "documents": "list",
 }
 
 # Only collections (list-kind resources) support per-item trash/restore.
@@ -35,4 +41,6 @@ RESOURCE_ID_KEY = {
     "days": "n",
     "checklist": "id",
     "expenses": "id",
+    "bookings": "id",
+    "documents": "id",
 }

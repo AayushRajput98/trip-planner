@@ -49,12 +49,18 @@ function editMetaForm() {
     ${field("Kicker", "m_kicker", m.kicker)}
     ${field("Subtitle (HTML ok)", "m_sub", m.sub)}
     ${field("Pills (comma-separated)", "m_pills", (m.pills||[]).join(", "))}
+    <div class="grid g2">
+      ${field("Starts", "m_startDate", m.startDate, "date")}
+      ${field("Ends", "m_endDate", m.endDate, "date")}
+    </div>
   `, async () => {
     await Api.updateMeta({
       title: $("#m_title").value,
       kicker: $("#m_kicker").value,
       sub: $("#m_sub").value,
       pills: $("#m_pills").value.split(",").map(s=>s.trim()).filter(Boolean),
+      startDate: $("#m_startDate").value || null,
+      endDate: $("#m_endDate").value || null,
     });
   });
 }

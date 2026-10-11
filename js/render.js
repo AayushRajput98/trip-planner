@@ -17,11 +17,31 @@ function md(s) {
 /* ---- Hero ---- */
 const HERO_PHOTO_SLUGS = ["jaisalmer-fort", "chittorgarh-fort", "mount-abu"];
 
+function formatDateRange(startDate, endDate) {
+  if (!startDate && !endDate) {
+    return `${icon("calendar", 14)} <span class="dates-empty">Trip dates not set — use "Edit trip info" to add them</span>`;
+  }
+  const opts = { day: "numeric", month: "short" };
+  const parse = s => s ? new Date(s + "T00:00:00") : null;
+  const start = parse(startDate), end = parse(endDate);
+  if (start && end) {
+    const sameYear = start.getFullYear() === end.getFullYear();
+    const days = Math.round((end - start) / 86400000) + 1;
+    const startStr = start.toLocaleDateString("en-GB", sameYear ? opts : { ...opts, year: "numeric" });
+    const endStr = end.toLocaleDateString("en-GB", { ...opts, year: "numeric" });
+    return `${icon("calendar", 14)} <b>${startStr} – ${endStr}</b> <span class="dates-n">(${days} day${days===1?"":"s"})</span>`;
+  }
+  const only = start || end;
+  const label = start ? "Starts" : "Ends";
+  return `${icon("calendar", 14)} <b>${label} ${only.toLocaleDateString("en-GB", { ...opts, year: "numeric" })}</b>`;
+}
+
 function renderHero() {
   $("#hKicker").textContent = TRIP.meta.kicker;
   $("#hTitle").textContent  = TRIP.meta.title;
   $("#hSub").innerHTML      = md(TRIP.meta.sub);
   $("#hPills").innerHTML    = TRIP.meta.pills.map(p => `<span class="pill">${p}</span>`).join("");
+  $("#hDates").innerHTML    = formatDateRange(TRIP.meta.startDate, TRIP.meta.endDate);
   $("#heroPhotos").innerHTML = HERO_PHOTO_SLUGS.map(photoCard).join("");
 }
 

@@ -8,6 +8,8 @@ class Meta(BaseModel):
     kicker: str
     sub: str
     pills: list[str] = []
+    startDate: str | None = None
+    endDate: str | None = None
 
 
 class VehicleOption(BaseModel):
@@ -110,3 +112,30 @@ class Expense(BaseModel):
 
 class StatusUpdate(BaseModel):
     status: Literal["planned", "visited", "skipped"]
+
+
+class Receipt(BaseModel):
+    url: str
+    name: str
+
+
+class Booking(BaseModel):
+    id: str | None = None
+    hotel: str
+    city: str
+    checkIn: str | None = None
+    checkOut: str | None = None
+    status: Literal["pending", "confirmed"] = "pending"
+    confirmationNumber: str | None = None
+    notes: str | None = None
+    receipts: list[Receipt] = []
+
+
+class IdDocument(BaseModel):
+    id: str | None = None
+    person: str
+    label: str
+    url: str
+    name: str
+    uploadedAt: str | None = None
+

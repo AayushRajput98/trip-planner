@@ -1,6 +1,6 @@
 /* ============================================================================
-   VERSIONS — the History tab: a merged timeline across all six resources,
-   plus a "recently deleted" trash view with one-click restore. Mirrors
+   VERSIONS — the History tab: a merged timeline across every resource, plus
+   a "recently deleted" trash view with one-click restore. Mirrors
    expenses.js's shape: fetch on demand, render into a couple of containers,
    wire clicks. Loaded lazily the first time the History tab is opened.
    ========================================================================== */
@@ -11,11 +11,13 @@ const RESOURCE_META = {
   reference: { label: "Reference",  color: "#3a6b8a" },
   checklist: { label: "Checklist",  color: "var(--rust)" },
   expenses:  { label: "Expenses",   color: "var(--meat)" },
+  bookings:  { label: "Bookings",   color: "#3a6b8a" },
+  documents: { label: "Travel documents", color: "var(--gold)" },
 };
 
 // Singular noun for one trash item, since RESOURCE_META's label is plural
 // ("Days", "Expenses") — used only in the restore-confirm sentence.
-const ITEM_NOUN = { days: "day", checklist: "checklist item", expenses: "expense" };
+const ITEM_NOUN = { days: "day", checklist: "checklist item", expenses: "expense", bookings: "booking", documents: "document" };
 
 const HISTORY = { feed: [], trash: [] };
 let historyLoaded = false;
@@ -45,6 +47,8 @@ function itemLabel(resource, content) {
   if (resource === "days") return `${content.n} — ${content.title || ""}`;
   if (resource === "checklist") return content.text || "(no text)";
   if (resource === "expenses") return `₹${content.amount} — ${content.paidBy}${content.note ? " · " + content.note : ""}`;
+  if (resource === "bookings") return `${content.hotel} — ${content.city}`;
+  if (resource === "documents") return `${content.label} — ${content.person}`;
   return fmtVal(content);
 }
 

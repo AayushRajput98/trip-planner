@@ -4,6 +4,7 @@ pydantic>=2.9
 mcp>=2.0,<3
 PyYAML>=6.0
 python-multipart>=0.0.9
+pypdf>=5.0
 
 # dev / tests
 pytest>=8.0

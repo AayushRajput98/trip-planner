@@ -167,6 +167,26 @@ const Api = {
     return res.json();
   },
 
+  /* Multipart upload of a booking invoice PDF — parsed server-side into
+     hotel/city/dates/cost, and stored as a receipt in the same call. */
+  parseBookingFile: async file => {
+    const token = getSettings().token;
+    if (!token) throw new Error("No shared token set — open Settings and paste it first.");
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch(API_BASE + "/api/bookings/parse", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "X-Editor-Name": getPerson() || "Someone" },
+      body: fd,
+    });
+    if (!res.ok) {
+      let detail = res.statusText;
+      try { detail = (await res.json()).detail || detail; } catch (e) { /* ignore */ }
+      throw new Error(`Couldn't read that invoice (${res.status}): ${detail}`);
+    }
+    return res.json();
+  },
+
   getVersionFeed: (limit = 50) => api(`/api/versions/feed?limit=${limit}`),
   getVersionHistory: resource => api(`/api/versions/${resource}`),
   getVersionDiff: (resource, version) => api(`/api/versions/${resource}/${version}/diff`),

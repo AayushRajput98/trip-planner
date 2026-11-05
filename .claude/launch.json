@@ -1,0 +1,20 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backend",
+      "runtimeExecutable": "backend/.venv/Scripts/python.exe",
+      "runtimeArgs": [
+        "-c",
+        "import os, sys, tempfile, shutil; d = tempfile.mkdtemp(prefix='tp-dev-'); shutil.copytree('backend/data', d, dirs_exist_ok=True); os.environ['DATA_DIR'] = d; os.environ.setdefault('AUTH_TOKEN', 'dev-token-change-me'); sys.path.insert(0, 'backend'); import uvicorn; uvicorn.run('app.main:app', host='127.0.0.1', port=8123)"
+      ],
+      "port": 8123
+    },
+    {
+      "name": "frontend",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5500"],
+      "port": 5500
+    }
+  ]
+}

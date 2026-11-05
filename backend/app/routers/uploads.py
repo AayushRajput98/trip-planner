@@ -23,12 +23,16 @@ def _safe_suffix(filename: str) -> str:
     return suffix if re.fullmatch(r"\.[a-z0-9]{1,8}", suffix or "") else ""
 
 
-@router.post("", dependencies=[Depends(require_auth)])
-async def upload_file(file: UploadFile):
-    data = await file.read()
+def store_upload(data: bytes, filename: str) -> dict:
     if len(data) > MAX_BYTES:
         raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="File is larger than 15 MB")
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-    stored_name = f"{uuid.uuid4().hex}{_safe_suffix(file.filename or '')}"
+    stored_name = f"{uuid.uuid4().hex}{_safe_suffix(filename)}"
     (UPLOAD_DIR / stored_name).write_bytes(data)
-    return {"url": f"{PUBLIC_BASE_URL}/uploads/{stored_name}", "name": file.filename or stored_name}
+    return {"url": f"{PUBLIC_BASE_URL}/uploads/{stored_name}", "name": filename or stored_name}
+
+
+@router.post("", dependencies=[Depends(require_auth)])
+async def upload_file(file: UploadFile):
+    data = await file.read()
+    return store_upload(data, file.filename or "")

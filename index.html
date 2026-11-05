@@ -238,6 +238,10 @@
     <section id="bookingsList" style="padding-top:0">
       <div class="section-head">
         <h2>Hotel Bookings</h2>
+        <button class="btn secondary" id="btnUploadBookingPdf">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          Upload invoice
+        </button>
         <button class="btn" id="btnAddBooking">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
           Add booking
@@ -250,6 +254,7 @@
       </div>
       <div class="grid g2" id="bookingCards"></div>
       <input type="file" id="receiptFileInput" hidden accept="image/*,.pdf">
+      <input type="file" id="bookingUploadInput" hidden accept=".pdf">
     </section>
   </div>
 

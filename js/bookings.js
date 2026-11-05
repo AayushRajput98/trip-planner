@@ -125,8 +125,87 @@ function addBookingForm() {
   });
 }
 
+/* ---- Upload & parse an invoice PDF ---- */
+function parsedBookingForm(parsed) {
+  const receipt = parsed.receipt;
+  openModal("Confirm booking details", `
+    <p class="small">Detected from <b>${receipt.name}</b> — check these before saving.</p>
+    ${field("Hotel name", "pb_hotel", parsed.hotel || "")}
+    ${field("City", "pb_city", parsed.city || "")}
+    <div class="grid g2">
+      ${field("Check-in", "pb_checkIn", parsed.checkIn || "", "date")}
+      ${field("Check-out", "pb_checkOut", parsed.checkOut || "", "date")}
+    </div>
+    <div class="field"><label>Status</label><select id="pb_status">
+      <option value="pending">Pending</option>
+      <option value="confirmed" selected>Confirmed</option>
+    </select></div>
+    ${field("Confirmation number", "pb_conf", parsed.confirmationNumber || "")}
+    ${parsed.amount ? `<p class="small">Detected cost: <b>${parsed.currency || "INR"} ${parsed.amount.toLocaleString("en-IN")}</b> — you'll be asked who to log it as an expense for, next.</p>` : `<p class="small">Couldn't detect a cost on this invoice — add it as an expense manually if needed.</p>`}
+  `, async () => {
+    const hotel = $("#pb_hotel").value.trim();
+    if (!hotel) throw new Error("Hotel name is required.");
+    const booking = await Api.addBooking({
+      hotel,
+      city: $("#pb_city").value.trim(),
+      checkIn: $("#pb_checkIn").value || null,
+      checkOut: $("#pb_checkOut").value || null,
+      status: $("#pb_status").value,
+      confirmationNumber: $("#pb_conf").value.trim() || null,
+      receipts: [receipt],
+    });
+    await loadBookingsData();
+    // The modal's own Save handler (wireEditor in editor.js) closes
+    // #genericModal right after this resolves — opening the expense
+    // prompt here would be clobbered by that close. Queue it just after.
+    if (parsed.amount) setTimeout(() => expenseForBookingForm(booking, parsed), 300);
+  });
+}
+
+function expenseForBookingForm(booking, parsed) {
+  const today = new Date().toISOString().slice(0, 10);
+  const defaultName = MEMBERS.includes(getPerson()) ? getPerson() : MEMBERS[0];
+  openModal("Log this as an expense?", `
+    <p class="small">Detected cost for <b>${booking.hotel}</b>: <b>${parsed.currency || "INR"} ${parsed.amount.toLocaleString("en-IN")}</b></p>
+    <div class="grid g2">
+      ${field("Date", "eb_date", booking.checkIn || today, "date")}
+      ${field("Amount", "eb_amount", parsed.amount, "number")}
+    </div>
+    <div class="field"><label>Whose expense is this?</label><select id="eb_paidBy">
+      ${MEMBERS.map(m => `<option value="${m}" ${m===defaultName?"selected":""}>${m === defaultName ? `${m} (you)` : m}</option>`).join("")}
+    </select></div>
+    ${field("Category", "eb_category", "Stay")}
+    ${field("Note", "eb_note", booking.hotel)}
+  `, async () => {
+    await Api.addExpense({
+      date: $("#eb_date").value,
+      amount: parseFloat($("#eb_amount").value),
+      currency: parsed.currency || "INR",
+      paidBy: $("#eb_paidBy").value,
+      category: $("#eb_category").value.trim() || null,
+      note: $("#eb_note").value.trim() || null,
+    });
+    await loadExpenses();
+  });
+}
+
 function wireBookings() {
   $("#btnAddBooking").addEventListener("click", addBookingForm);
+
+  $("#btnUploadBookingPdf").addEventListener("click", () => {
+    $("#bookingUploadInput").value = "";
+    $("#bookingUploadInput").click();
+  });
+
+  $("#bookingUploadInput").addEventListener("change", async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      toast("Reading invoice…");
+      const parsed = await Api.parseBookingFile(file);
+      parsedBookingForm(parsed);
+    } catch (err) { toast(err.message, true); }
+  });
 
   $("#docPeople").addEventListener("click", async e => {
     const addBtn = e.target.closest(".adddocbtn");

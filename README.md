@@ -78,6 +78,11 @@ Open `http://127.0.0.1:8080/index.html` — `js/config.js` already points at
    this is just a URL, not a secret, so it's fine committed to a public repo.
 3. Visit `https://<your-username>.github.io/<repo>/` — it should render exactly like local dev,
    now backed by the live Railway API.
+4. Whenever you change a `js/*.js` or `css/style.css` file, bump the `?v=` query string on its
+   `<script>`/`<link>` tag in `index.html` (e.g. to the date). Browsers and GitHub's CDN cache
+   those files aggressively; without a version bump, returning visitors can keep running old
+   JS indefinitely — `index.html` itself revalidates more often, so they'll see new buttons or
+   markup wired up with stale (or no) JS behavior behind them.
 
 ## Connecting Claude to the trip (MCP)
 

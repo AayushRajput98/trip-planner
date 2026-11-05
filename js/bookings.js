@@ -30,7 +30,7 @@ function renderDocPeople() {
         <div class="doc-chips">
           ${docs.length ? docs.map(d => `
             <span class="doc-chip">
-              <a href="${d.url}" target="_blank" rel="noopener">${icon("externalLink", 12)} ${d.label}</a>
+              <a href="${d.url}" target="_blank" rel="noopener">${icon("externalLink", 12)} <span class="doc-chip-name">${d.label}</span></a>
               <button class="doc-chip-x deldocbtn" data-id="${d.id}" title="Remove">${icon("x", 10)}</button>
             </span>`).join("") : `<span class="small">No ID uploaded yet</span>`}
         </div>
@@ -60,7 +60,7 @@ function addDocumentForm(person) {
 function bookingReceiptsHtml(b) {
   return (b.receipts || []).map(r => `
     <span class="doc-chip">
-      <a href="${r.url}" target="_blank" rel="noopener">${icon("externalLink", 12)} ${r.name || "Receipt"}</a>
+      <a href="${r.url}" target="_blank" rel="noopener">${icon("externalLink", 12)} <span class="doc-chip-name">${r.name || "Receipt"}</span></a>
       <button class="doc-chip-x delreceiptbtn" data-id="${b.id}" data-url="${r.url}" title="Remove">${icon("x", 10)}</button>
     </span>`).join("");
 }

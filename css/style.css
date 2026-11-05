@@ -402,11 +402,12 @@ footer a{color:var(--gold)}
 
 /* ---- Bookings tab ---- */
 .doc-card{display:flex;flex-direction:column;gap:10px}
-.doc-chips{display:flex;flex-wrap:wrap;gap:7px;min-height:22px}
+.doc-chips{display:flex;flex-wrap:wrap;gap:7px;min-height:22px;min-width:0}
 .doc-chip{display:inline-flex;align-items:center;gap:6px;background:var(--sand);border-radius:16px;
-          padding:4px 6px 4px 10px;font-size:.78rem}
-.doc-chip a{display:inline-flex;align-items:center;gap:4px;color:var(--ink);font-weight:600}
+          padding:4px 6px 4px 10px;font-size:.78rem;max-width:100%;min-width:0;box-sizing:border-box}
+.doc-chip a{display:inline-flex;align-items:center;gap:4px;color:var(--ink);font-weight:600;min-width:0}
 .doc-chip a:hover{text-decoration:none;color:var(--maroon)}
+.doc-chip-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;max-width:220px}
 .doc-chip-x{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;
             border-radius:50%;border:none;background:none;color:var(--muted);cursor:pointer}
 .doc-chip-x:hover{background:var(--line);color:var(--ink)}
